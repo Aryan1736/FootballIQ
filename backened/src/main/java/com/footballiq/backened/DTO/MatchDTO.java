@@ -1,0 +1,13 @@
+package com.footballiq.backened.DTO;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class MatchDTO {
+    private String homeTeam;
+    private String awayTeam;
+    private String matchDate;
+    private String status;
+}
