@@ -21,6 +21,8 @@ public class FootballService {
     @Value("${football.api.key}")
     private String apiKey;
 
+    // Standings
+
     private final String standings_url = "https://api.football-data.org/v4/competitions/PL/standings";
 
     public List<StandingDTO> getStandings(){
@@ -71,6 +73,8 @@ public class FootballService {
         return standingsList;
     }
 
+    // Matches
+
     private final String MATCH_URL = "https://api.football-data.org/v4/competitions/PL/matches";
 
     public List<MatchDTO> getMatches() {
@@ -114,6 +118,9 @@ public class FootballService {
                 String status =
                         match.path("status")
                                 .asText();
+                if(!status.equals("TIMED")) {
+                    continue;
+                }
 
                 matchList.add(
                         new MatchDTO(

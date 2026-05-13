@@ -1,9 +1,14 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+
 function App() {
-  return (
-    <div className="h-screen bg-black text-white flex items-center justify-center text-4xl">
-      FootballIQ ⚽
-    </div>
-  )
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Dashboard />} />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
-export default App
+export default App;
