@@ -1,5 +1,6 @@
 package com.footballiq.backened.Controller;
 
+import com.footballiq.backened.DTO.LoginRequest;
 import com.footballiq.backened.Entity.User;
 import com.footballiq.backened.Service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,5 +21,10 @@ public class UserController {
     @PostMapping("/register")
     public User register(@RequestBody User user){
         return userService.registerUser(user);
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestBody LoginRequest request){
+        return userService.loginUser(request);
     }
 }
