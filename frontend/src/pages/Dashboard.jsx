@@ -10,12 +10,13 @@ function Dashboard() {
     const [standings, setStandings] = useState([]);
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [league, setLeague] = useState("PL");
 
     useEffect(() => {
 
         Promise.all([
-            getStandings(),
-            getMatches()
+            getStandings(league),
+            getMatches(league)
         ])
         .then(([standingsResponse, matchesResponse]) => {
 
@@ -29,7 +30,7 @@ function Dashboard() {
             console.log(error);
         });
 
-    }, []);
+    }, [league]);
 
     if (loading) {
         return (
@@ -45,7 +46,10 @@ function Dashboard() {
 
         <div className="min-h-screen bg-black text-white p-8">
 
-            <Navbar />
+            <Navbar
+                league={league}
+                setLeague={setLeague}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 

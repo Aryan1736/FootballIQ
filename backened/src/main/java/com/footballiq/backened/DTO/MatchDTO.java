@@ -6,6 +6,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MatchDTO {
+
+    private int homeTeamId;
+    private int awayTeamId;
+
     private String homeTeam;
     private String awayTeam;
 

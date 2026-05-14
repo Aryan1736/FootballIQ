@@ -6,10 +6,11 @@ import Navbar from "../components/Navbar";
 function StandingsPage() {
 
     const [standings, setStandings] = useState([]);
+    const [league, setLeague] = useState("PL");
 
     useEffect(() => {
 
-        getStandings()
+        getStandings(league)
             .then((response) => {
                 setStandings(response.data);
             })
@@ -17,13 +18,16 @@ function StandingsPage() {
                 console.log(error);
             });
 
-    }, []);
+    }, [league]);
 
     return (
 
         <div className="min-h-screen bg-black text-white p-8">
 
-            <Navbar />
+            <Navbar
+                league={league}
+                setLeague={setLeague}
+            />
 
             <StandingsTable standings={standings} />
 

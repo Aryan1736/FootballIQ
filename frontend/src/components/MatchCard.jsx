@@ -1,4 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 function MatchCard({ match }) {
+
+    const navigate = useNavigate();
+    console.log(match);
 
     return (
 
@@ -6,6 +11,7 @@ function MatchCard({ match }) {
 
             <div className="flex items-center justify-between">
 
+                {/* Home Team */}
                 <div className="flex flex-col items-center gap-2 w-32">
 
                     <img
@@ -14,7 +20,10 @@ function MatchCard({ match }) {
                         className="w-12 h-12"
                     />
 
-                    <p className="font-semibold text-center">
+                    <p
+                        onClick={() => navigate(`/team/${match.homeTeamId}`)}
+                        className="font-semibold text-center cursor-pointer hover:text-blue-400 transition"
+                    >
                         {match.homeTeam}
                     </p>
 
@@ -24,6 +33,7 @@ function MatchCard({ match }) {
                     VS
                 </p>
 
+                {/* Away Team */}
                 <div className="flex flex-col items-center gap-2 w-32">
 
                     <img
@@ -32,7 +42,10 @@ function MatchCard({ match }) {
                         className="w-12 h-12"
                     />
 
-                    <p className="font-semibold text-center">
+                    <p
+                        onClick={() => navigate(`/team/${match.awayTeamId}`)}
+                        className="font-semibold text-center cursor-pointer hover:text-blue-400 transition"
+                    >
                         {match.awayTeam}
                     </p>
 

@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class StandingDTO {
+    private int id;
     private int position;
     private String teamName;
     private int points;

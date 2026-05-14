@@ -13,7 +13,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FootballService {
@@ -21,14 +23,10 @@ public class FootballService {
     @Value("${football.api.key}")
     private String apiKey;
 
-    private List<MatchDTO> cachedMatches;
-    private long lastFetchTime = 0;
-
     // Standings
 
-    private final String standings_url = "https://api.football-data.org/v4/competitions/PL/standings";
-
-    public List<StandingDTO> getStandings(){
+    public List<StandingDTO> getStandings(String leagueCode){
+        String standings_url = "https://api.football-data.org/v4/competitions/" + leagueCode +"/standings";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Auth-Token", apiKey);
@@ -55,6 +53,10 @@ public class FootballService {
 
             for(JsonNode team : table) {
 
+                int id = team.path("team")
+                        .path("id")
+                        .asInt();
+
                 int position = team.path("position").asInt();
 
                 String teamName =
@@ -70,7 +72,7 @@ public class FootballService {
                                 .asText();
 
                 standingsList.add(
-                        new StandingDTO(position, teamName, points, logo)
+                        new StandingDTO(id, position, teamName, points, logo)
                 );
             }
 
@@ -83,14 +85,22 @@ public class FootballService {
 
     // Matches
 
-    private final String MATCH_URL = "https://api.football-data.org/v4/competitions/PL/matches";
+    private Map<String, List<MatchDTO>> matchesCache =
+            new HashMap<>();
 
-    public List<MatchDTO> getMatches() {
+    private Map<String, Long> cacheTime =
+            new HashMap<>();
 
-        if(cachedMatches != null &&
-                System.currentTimeMillis() - lastFetchTime < 300000) {
+    public List<MatchDTO> getMatches(String leagueCode) {
 
-            return cachedMatches;
+        String MATCH_URL = "https://api.football-data.org/v4/competitions/" + leagueCode +"/matches";
+
+        if(matchesCache.containsKey(leagueCode) &&
+
+                System.currentTimeMillis()
+                        - cacheTime.get(leagueCode) < 300000) {
+
+            return matchesCache.get(leagueCode);
         }
 
         RestTemplate restTemplate = new RestTemplate();
@@ -115,6 +125,17 @@ public class FootballService {
             JsonNode matches = root.path("matches");
 
             for(JsonNode match : matches) {
+
+                int homeTeamId =
+                        match.path("homeTeam")
+                                .path("id")
+                                .asInt();
+
+                int awayTeamId =
+                        match.path("awayTeam")
+                                .path("id")
+                                .asInt();
+
                 String homeTeam =
                         match.path("homeTeam")
                                 .path("name")
@@ -132,6 +153,7 @@ public class FootballService {
                 String status =
                         match.path("status")
                                 .asText();
+
                 if(!status.equals("TIMED")) {
                     continue;
                 }
@@ -148,6 +170,8 @@ public class FootballService {
 
                 matchList.add(
                         new MatchDTO(
+                                homeTeamId,
+                                awayTeamId,
                                 homeTeam,
                                 awayTeam,
                                 homeLogo,
@@ -162,8 +186,12 @@ public class FootballService {
             e.printStackTrace();
         }
 
-        cachedMatches = matchList;
-        lastFetchTime = System.currentTimeMillis();
+        matchesCache.put(leagueCode, matchList);
+
+        cacheTime.put(
+                leagueCode,
+                System.currentTimeMillis()
+        );
 
         return matchList;
     }

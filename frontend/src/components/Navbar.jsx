@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function Navbar() {
+function Navbar({ league, setLeague }){
 
     return (
 
@@ -32,6 +32,19 @@ function Navbar() {
                 >
                     Matches
                 </Link>
+
+                <select
+                    value={league}
+                    onChange={(e) => setLeague(e.target.value)}
+                    className="bg-zinc-800 text-white px-4 py-2 rounded-xl outline-none"
+                >
+
+                    <option value="PL">Premier League</option>
+                    <option value="PD">La Liga</option>
+                    <option value="BL1">Bundesliga</option>
+                    <option value="SA">Serie A</option>
+
+                </select>
 
             </div>
 

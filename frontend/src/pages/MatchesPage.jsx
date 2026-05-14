@@ -6,10 +6,11 @@ import Navbar from "../components/Navbar";
 function MatchesPage() {
 
     const [matches, setMatches] = useState([]);
+    const [league, setLeague] = useState("PL");
 
     useEffect(() => {
 
-        getMatches()
+        getMatches(league)
             .then((response) => {
                 setMatches(response.data);
             })
@@ -17,13 +18,16 @@ function MatchesPage() {
                 console.log(error);
             });
 
-    }, []);
+    }, [league]);
 
     return (
 
         <div className="min-h-screen bg-black text-white p-8">
 
-            <Navbar />
+            <Navbar
+                league={league}
+                setLeague={setLeague}
+            />
 
             <div className="space-y-4">
 

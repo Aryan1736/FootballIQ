@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import StandingsPage from "./pages/StandingsPage";
 import MatchesPage from "./pages/MatchesPage";
+import TeamDetails from "./pages/TeamDetails";
 
 function App() {
 
@@ -25,6 +26,11 @@ function App() {
                 <Route
                     path="/matches"
                     element={<MatchesPage />}
+                />
+
+                <Route 
+                    path="/team/:id" 
+                    element={<TeamDetails />} 
                 />
 
             </Routes>

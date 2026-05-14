@@ -1,11 +1,15 @@
+import { useNavigate } from "react-router-dom";
+
 function StandingsTable({ standings }) {
+
+    const navigate = useNavigate();
 
     return (
 
         <div>
 
             <h2 className="text-2xl font-semibold mb-6">
-                Premier League Standings
+                League Standings
             </h2>
 
             <div className="space-y-3">
@@ -29,7 +33,10 @@ function StandingsTable({ standings }) {
                                 className="w-8 h-8"
                             />
 
-                            <span>
+                            <span
+                                onClick={() => navigate(`/team/${team.id}`)}
+                                className="cursor-pointer hover:text-blue-400 transition"
+                            >
                                 {team.teamName}
                             </span>
 
