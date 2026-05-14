@@ -9,4 +9,5 @@ public class StandingDTO {
     private int position;
     private String teamName;
     private int points;
+    private String logo;
 }

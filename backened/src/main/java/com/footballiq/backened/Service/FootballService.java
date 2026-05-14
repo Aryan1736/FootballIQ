@@ -21,6 +21,9 @@ public class FootballService {
     @Value("${football.api.key}")
     private String apiKey;
 
+    private List<MatchDTO> cachedMatches;
+    private long lastFetchTime = 0;
+
     // Standings
 
     private final String standings_url = "https://api.football-data.org/v4/competitions/PL/standings";
@@ -61,8 +64,13 @@ public class FootballService {
 
                 int points = team.path("points").asInt();
 
+                String logo =
+                        team.path("team")
+                                .path("crest")
+                                .asText();
+
                 standingsList.add(
-                        new StandingDTO(position, teamName, points)
+                        new StandingDTO(position, teamName, points, logo)
                 );
             }
 
@@ -78,6 +86,12 @@ public class FootballService {
     private final String MATCH_URL = "https://api.football-data.org/v4/competitions/PL/matches";
 
     public List<MatchDTO> getMatches() {
+
+        if(cachedMatches != null &&
+                System.currentTimeMillis() - lastFetchTime < 300000) {
+
+            return cachedMatches;
+        }
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -122,10 +136,22 @@ public class FootballService {
                     continue;
                 }
 
+                String homeLogo =
+                        match.path("homeTeam")
+                                .path("crest")
+                                .asText();
+
+                String awayLogo =
+                        match.path("awayTeam")
+                                .path("crest")
+                                .asText();
+
                 matchList.add(
                         new MatchDTO(
                                 homeTeam,
                                 awayTeam,
+                                homeLogo,
+                                awayLogo,
                                 date,
                                 status
                         )
@@ -135,6 +161,9 @@ public class FootballService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        cachedMatches = matchList;
+        lastFetchTime = System.currentTimeMillis();
 
         return matchList;
     }

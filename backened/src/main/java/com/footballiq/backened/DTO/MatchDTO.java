@@ -8,6 +8,10 @@ import lombok.Data;
 public class MatchDTO {
     private String homeTeam;
     private String awayTeam;
+
+    private String homeLogo;
+    private String awayLogo;
+
     private String matchDate;
     private String status;
 }

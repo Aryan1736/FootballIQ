@@ -1,80 +1,67 @@
 import { useEffect, useState } from "react";
 import { getStandings, getMatches } from "../services/footballService";
+import MatchCard from "../components/MatchCard";
+import StandingsTable from "../components/StandingsTable";
+import Navbar from "../components/Navbar";
+import { Link } from "react-router-dom";
 
 function Dashboard() {
 
     const [standings, setStandings] = useState([]);
     const [matches, setMatches] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
 
-        getStandings()
-            .then((response) => {
-                setStandings(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        Promise.all([
+            getStandings(),
+            getMatches()
+        ])
+        .then(([standingsResponse, matchesResponse]) => {
 
-        getMatches()
-            .then((response) => {
-                setMatches(response.data.slice(0, 10));
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+            setStandings(standingsResponse.data);
+            setMatches(matchesResponse.data);
+
+            setLoading(false);
+
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 
     }, []);
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center">
+                <h1 className="text-3xl font-bold">
+                    Loading Live Football Data ⚽
+                </h1>
+            </div>
+        );
+    }
+
     return (
+
         <div className="min-h-screen bg-black text-white p-8">
 
-            <h1 className="text-5xl font-bold mb-10">
-                FootballIQ ⚽
-            </h1>
+            <Navbar />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                {/* Standings Section */}
                 <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg">
 
-                    <h2 className="text-2xl font-semibold mb-6">
-                        Premier League Standings
-                    </h2>
+                    <StandingsTable standings={standings.slice(0, 5)} />
 
-                    <div className="space-y-3">
-
-                        {standings.map((team, index) => (
-
-                            <div
-                                key={index}
-                                className="flex justify-between items-center bg-zinc-800 p-4 rounded-xl hover:bg-zinc-700 transition"
-                            >
-
-                                <div className="flex gap-4">
-
-                                    <span className="font-bold">
-                                        {team.position}
-                                    </span>
-
-                                    <span>
-                                        {team.teamName}
-                                    </span>
-
-                                </div>
-
-                                <span className="font-semibold text-green-400">
-                                    {team.points} pts
-                                </span>
-
-                            </div>
-                        ))}
-
-                    </div>
+                    <Link
+                        to="/standings"
+                        className="text-green-400 hover:text-green-300 mt-6 inline-block"
+                    >
+                        View Full Standings →
+                    </Link>
 
                 </div>
 
-                {/* Matches Section */}
                 <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg">
 
                     <h2 className="text-2xl font-semibold mb-6">
@@ -83,41 +70,23 @@ function Dashboard() {
 
                     <div className="space-y-4">
 
-                        {matches.map((match, index) => (
+                        {matches.slice(0, 3).map((match, index) => (
 
-                            <div
+                            <MatchCard
                                 key={index}
-                                className="bg-zinc-800 p-4 rounded-xl hover:bg-zinc-700 transition"
-                            >
+                                match={match}
+                            />
 
-                                <p className="font-semibold text-lg">
-                                    {match.homeTeam}
-                                </p>
-
-                                <p className="text-center text-sm text-zinc-400 my-2">
-                                    VS
-                                </p>
-
-                                <p className="font-semibold text-lg">
-                                    {match.awayTeam}
-                                </p>
-
-                                <div className="mt-3 text-sm text-zinc-400">
-
-                                    <p>
-                                        {match.matchDate}
-                                    </p>
-
-                                    <p>
-                                        {match.status}
-                                    </p>
-
-                                </div>
-
-                            </div>
                         ))}
 
                     </div>
+
+                    <Link
+                        to="/matches"
+                        className="text-green-400 hover:text-green-300 mt-6 inline-block"
+                    >
+                        View All Matches →
+                    </Link>
 
                 </div>
 
