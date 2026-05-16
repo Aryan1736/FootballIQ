@@ -33,7 +33,8 @@ function MatchesPage() {
 
                 {matches.map((match, index) => (
 
-                    <MatchCard
+                    <MatchCard 
+                        league={league}
                         key={index}
                         match={match}
                     />

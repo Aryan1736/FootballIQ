@@ -11,4 +11,10 @@ public class StandingDTO {
     private String teamName;
     private int points;
     private String logo;
+    private int won;
+    private int draw;
+    private int lost;
+    private int goalsFor;
+    private int goalsAgainst;
+    private int goalDifference;
 }

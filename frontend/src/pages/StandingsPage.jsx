@@ -29,7 +29,7 @@ function StandingsPage() {
                 setLeague={setLeague}
             />
 
-            <StandingsTable standings={standings} />
+            <StandingsTable standings={standings} league={league} />
 
         </div>
     );

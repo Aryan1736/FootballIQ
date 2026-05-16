@@ -3,14 +3,17 @@ import { useParams } from "react-router-dom";
 import {
   getTeamDetails,
   getTeamMatches,
+  getStandings
 } from "../services/footballService";
+import TeamAnalytics from "../components/TeamAnalytics";
 
 const TeamDetails = () => {
 
-  const { id } = useParams();
+  const { id, leagueCode } = useParams();
 
   const [team, setTeam] = useState(null);
   const [matches, setMatches] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
 
@@ -20,7 +23,13 @@ const TeamDetails = () => {
 
         const teamResponse = await getTeamDetails(id);
         const matchesResponse = await getTeamMatches(id);
+        const standingsResponse = await getStandings(leagueCode)
+        const teamAnalytics =
+            standingsResponse.data.find(
+                (club) => club.teamName === teamResponse.data.name
+            );
 
+        setAnalytics(teamAnalytics);
         setTeam(teamResponse.data);
         setMatches(matchesResponse.data.matches);
 
@@ -81,6 +90,12 @@ const TeamDetails = () => {
 
         </div>
       </div>
+
+      {analytics && (
+          <div className="mt-8">
+              <TeamAnalytics team={analytics} />
+          </div>
+      )}
 
       {/* Squad Section */}
       <div className="mt-8 bg-zinc-900 rounded-3xl p-6 shadow-lg">

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-function StandingsTable({ standings }) {
+function StandingsTable({ standings, league }) {
 
     const navigate = useNavigate();
 
@@ -34,7 +34,9 @@ function StandingsTable({ standings }) {
                             />
 
                             <span
-                                onClick={() => navigate(`/team/${team.id}`)}
+                                onClick={() =>
+                                    navigate(`/team/${team.id}/${league}`)
+                                }
                                 className="cursor-pointer hover:text-blue-400 transition"
                             >
                                 {team.teamName}

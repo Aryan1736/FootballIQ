@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-function MatchCard({ match }) {
-
+function MatchCard({ match, league }){
+    
     const navigate = useNavigate();
     console.log(match);
 
@@ -21,7 +21,7 @@ function MatchCard({ match }) {
                     />
 
                     <p
-                        onClick={() => navigate(`/team/${match.homeTeamId}`)}
+                        onClick={() => navigate(`/team/${match.homeTeamId}/${league}`)}
                         className="font-semibold text-center cursor-pointer hover:text-blue-400 transition"
                     >
                         {match.homeTeam}
@@ -43,7 +43,7 @@ function MatchCard({ match }) {
                     />
 
                     <p
-                        onClick={() => navigate(`/team/${match.awayTeamId}`)}
+                        onClick={() => navigate(`/team/${match.awayTeamId}/${league}`)}
                         className="font-semibold text-center cursor-pointer hover:text-blue-400 transition"
                     >
                         {match.awayTeam}

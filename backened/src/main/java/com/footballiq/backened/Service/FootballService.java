@@ -9,8 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,29 +25,63 @@ public class FootballService {
 
     // Standings
 
-    public List<StandingDTO> getStandings(String leagueCode){
-        String standings_url = "https://api.football-data.org/v4/competitions/" + leagueCode +"/standings";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Auth-Token", apiKey);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(
-                standings_url,
-                HttpMethod.GET,
-                entity,
-                String.class
-        );
+    private Map<String, List<StandingDTO>> standingsCache =
+            new HashMap<>();
 
-        List<StandingDTO> standingsList = new ArrayList<>();
+    private Map<String, Long> standingsCacheTime =
+            new HashMap<>();
+
+    public List<StandingDTO> getStandings(String leagueCode){
+
+        if (standingsCache.containsKey(leagueCode) &&
+
+                System.currentTimeMillis()
+                        - standingsCacheTime.get(leagueCode) < 300000) {
+
+            return standingsCache.get(leagueCode);
+        }
 
         try {
 
+            String standings_url =
+                    "https://api.football-data.org/v4/competitions/"
+                            + leagueCode +
+                            "/standings";
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.set("X-Auth-Token", apiKey);
+
+            HttpEntity<String> entity =
+                    new HttpEntity<>(headers);
+
+            ResponseEntity<String> response =
+                    restTemplate.exchange(
+                            standings_url,
+                            HttpMethod.GET,
+                            entity,
+                            String.class
+                    );
+
+            List<StandingDTO> standingsList =
+                    new ArrayList<>();
+
             ObjectMapper mapper = new ObjectMapper();
 
-            JsonNode root = mapper.readTree(response.getBody());
+            JsonNode root =
+                    mapper.readTree(response.getBody());
+
+            JsonNode standingsNode =
+                    root.path("standings");
+
+            if(standingsNode.isEmpty()) {
+                return standingsList;
+            }
 
             JsonNode table =
-                    root.path("standings")
+                    standingsNode
                             .get(0)
                             .path("table");
 
@@ -57,30 +91,75 @@ public class FootballService {
                         .path("id")
                         .asInt();
 
-                int position = team.path("position").asInt();
+                int position =
+                        team.path("position").asInt();
 
                 String teamName =
                         team.path("team")
                                 .path("name")
                                 .asText();
 
-                int points = team.path("points").asInt();
+                int points =
+                        team.path("points").asInt();
 
                 String logo =
                         team.path("team")
                                 .path("crest")
                                 .asText();
 
+                int won =
+                        team.path("won").asInt();
+
+                int draw =
+                        team.path("draw").asInt();
+
+                int lost =
+                        team.path("lost").asInt();
+
+                int goalsFor =
+                        team.path("goalsFor").asInt();
+
+                int goalsAgainst =
+                        team.path("goalsAgainst").asInt();
+
+                int goalDifference =
+                        team.path("goalDifference").asInt();
+
                 standingsList.add(
-                        new StandingDTO(id, position, teamName, points, logo)
+                        new StandingDTO(
+                                id,
+                                position,
+                                teamName,
+                                points,
+                                logo,
+                                won,
+                                draw,
+                                lost,
+                                goalsFor,
+                                goalsAgainst,
+                                goalDifference
+                        )
                 );
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            standingsCache.put(
+                    leagueCode,
+                    standingsList
+            );
 
-        return standingsList;
+            standingsCacheTime.put(
+                    leagueCode,
+                    System.currentTimeMillis()
+            );
+
+            return standingsList;
+
+        } catch (Exception e) {
+
+            System.out.println(e.getMessage());
+
+            return new ArrayList<>();
+        }
     }
 
     // Matches
@@ -88,41 +167,60 @@ public class FootballService {
     private Map<String, List<MatchDTO>> matchesCache =
             new HashMap<>();
 
-    private Map<String, Long> cacheTime =
+    private Map<String, Long> matchesCacheTime =
             new HashMap<>();
 
     public List<MatchDTO> getMatches(String leagueCode) {
 
-        String MATCH_URL = "https://api.football-data.org/v4/competitions/" + leagueCode +"/matches";
-
         if(matchesCache.containsKey(leagueCode) &&
 
                 System.currentTimeMillis()
-                        - cacheTime.get(leagueCode) < 300000) {
+                        - matchesCacheTime.get(leagueCode) < 300000) {
 
             return matchesCache.get(leagueCode);
         }
 
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Auth-Token", apiKey);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                MATCH_URL,
-                HttpMethod.GET,
-                entity,
-                String.class
-        );
-
-        List<MatchDTO> matchList = new ArrayList<>();
-
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response.getBody());
-            JsonNode matches = root.path("matches");
+
+            String MATCH_URL =
+                    "https://api.football-data.org/v4/competitions/"
+                            + leagueCode +
+                            "/matches";
+
+            RestTemplate restTemplate =
+                    new RestTemplate();
+
+            HttpHeaders headers =
+                    new HttpHeaders();
+
+            headers.set("X-Auth-Token", apiKey);
+
+            HttpEntity<String> entity =
+                    new HttpEntity<>(headers);
+
+            ResponseEntity<String> response =
+                    restTemplate.exchange(
+                            MATCH_URL,
+                            HttpMethod.GET,
+                            entity,
+                            String.class
+                    );
+
+            List<MatchDTO> matchList =
+                    new ArrayList<>();
+
+            ObjectMapper mapper =
+                    new ObjectMapper();
+
+            JsonNode root =
+                    mapper.readTree(response.getBody());
+
+            JsonNode matches =
+                    root.path("matches");
+
+            if(matches.isEmpty()) {
+                return matchList;
+            }
 
             for(JsonNode match : matches) {
 
@@ -182,17 +280,23 @@ public class FootballService {
                 );
             }
 
+            matchesCache.put(
+                    leagueCode,
+                    matchList
+            );
+
+            matchesCacheTime.put(
+                    leagueCode,
+                    System.currentTimeMillis()
+            );
+
+            return matchList;
+
         } catch (Exception e) {
-            e.printStackTrace();
+
+            System.out.println(e.getMessage());
+
+            return new ArrayList<>();
         }
-
-        matchesCache.put(leagueCode, matchList);
-
-        cacheTime.put(
-                leagueCode,
-                System.currentTimeMillis()
-        );
-
-        return matchList;
     }
 }

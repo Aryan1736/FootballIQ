@@ -29,7 +29,7 @@ function App() {
                 />
 
                 <Route 
-                    path="/team/:id" 
+                    path="/team/:id/:leagueCode" 
                     element={<TeamDetails />} 
                 />
 

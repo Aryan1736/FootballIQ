@@ -55,7 +55,7 @@ function Dashboard() {
 
                 <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg">
 
-                    <StandingsTable standings={standings.slice(0, 5)} />
+                    <StandingsTable standings={standings.slice(0, 5)} league={league} />
 
                     <Link
                         to="/standings"
@@ -77,6 +77,7 @@ function Dashboard() {
                         {matches.slice(0, 3).map((match, index) => (
 
                             <MatchCard
+                                league={league}
                                 key={index}
                                 match={match}
                             />
