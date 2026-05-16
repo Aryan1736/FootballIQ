@@ -125,6 +125,9 @@ public class FootballService {
                 int goalDifference =
                         team.path("goalDifference").asInt();
 
+                int playedGames =
+                        team.path("playedGames").asInt();
+
                 standingsList.add(
                         new StandingDTO(
                                 id,
@@ -137,7 +140,8 @@ public class FootballService {
                                 lost,
                                 goalsFor,
                                 goalsAgainst,
-                                goalDifference
+                                goalDifference,
+                                playedGames
                         )
                 );
             }

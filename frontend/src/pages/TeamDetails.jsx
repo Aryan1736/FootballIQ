@@ -6,6 +6,7 @@ import {
   getStandings
 } from "../services/footballService";
 import TeamAnalytics from "../components/TeamAnalytics";
+import TeamSkeleton from "../components/TeamSkeleton";
 
 const TeamDetails = () => {
 
@@ -43,11 +44,7 @@ const TeamDetails = () => {
   }, [id]);
 
   if (!team) {
-    return (
-      <div className="text-white text-center mt-10 text-2xl">
-        Loading Team...
-      </div>
-    );
+    return <TeamSkeleton />;
   }
 
   return (

@@ -4,6 +4,7 @@ import MatchCard from "../components/MatchCard";
 import StandingsTable from "../components/StandingsTable";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
+import DashboardSkeleton from "../components/DashboardSkeleton";
 
 function Dashboard() {
 
@@ -33,13 +34,7 @@ function Dashboard() {
     }, [league]);
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-black text-white flex items-center justify-center">
-                <h1 className="text-3xl font-bold">
-                    Loading Live Football Data ⚽
-                </h1>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     return (

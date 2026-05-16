@@ -17,4 +17,5 @@ public class StandingDTO {
     private int goalsFor;
     private int goalsAgainst;
     private int goalDifference;
+    private int playedGames;
 }
