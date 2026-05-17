@@ -17,3 +17,9 @@ export const getTeamDetails = (id) => {
 export const getTeamMatches = (id) => {
     return axios.get(`${API_URL}/team/${id}/matches`);
 };
+
+export const getTeamPreviousMatches = (teamId) => {
+    return axios.get(
+        `${API_URL}/team/${teamId}/previous-matches`
+    );
+};

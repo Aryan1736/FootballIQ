@@ -2,6 +2,7 @@ package com.footballiq.backened.Service;
 
 import com.footballiq.backened.DTO.MatchDTO;
 import com.footballiq.backened.DTO.StandingDTO;
+import com.footballiq.backened.DTO.TeamMatchDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -302,5 +303,104 @@ public class FootballService {
 
             return new ArrayList<>();
         }
+    }
+
+    public List<TeamMatchDTO> getTeamPreviousMatches(int teamId) {
+
+        String url =
+                "https://api.football-data.org/v4/teams/"
+                        + teamId
+                        + "/matches?status=FINISHED&limit=10";
+
+        RestTemplate restTemplate =
+                new RestTemplate();
+
+        HttpHeaders headers =
+                new HttpHeaders();
+
+        headers.set("X-Auth-Token", apiKey);
+
+        HttpEntity<String> entity =
+                new HttpEntity<>(headers);
+
+        ResponseEntity<String> response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        String.class
+                );
+
+        List<TeamMatchDTO> matchesList =
+                new ArrayList<>();
+
+        try {
+
+            ObjectMapper mapper =
+                    new ObjectMapper();
+
+            JsonNode root =
+                    mapper.readTree(response.getBody());
+
+            JsonNode matches =
+                    root.path("matches");
+
+            for(JsonNode match : matches) {
+
+                matchesList.add(
+
+                        new TeamMatchDTO(
+
+                                match.path("id").asInt(),
+
+
+                                match.path("homeTeam")
+                                        .path("id")
+                                        .asInt(),
+
+                                match.path("awayTeam")
+                                        .path("id")
+                                        .asInt(),
+
+                                match.path("homeTeam")
+                                        .path("name")
+                                        .asText(),
+
+                                match.path("awayTeam")
+                                        .path("name")
+                                        .asText(),
+
+                                match.path("homeTeam")
+                                        .path("crest")
+                                        .asText(),
+
+                                match.path("awayTeam")
+                                        .path("crest")
+                                        .asText(),
+
+                                match.path("score")
+                                        .path("fullTime")
+                                        .path("home")
+                                        .asInt(),
+
+                                match.path("score")
+                                        .path("fullTime")
+                                        .path("away")
+                                        .asInt(),
+
+                                match.path("status")
+                                        .asText(),
+
+                                match.path("utcDate")
+                                        .asText()
+                        )
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return matchesList;
     }
 }

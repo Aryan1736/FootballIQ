@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   getTeamDetails,
-  getTeamMatches,
+  getTeamPreviousMatches,
   getStandings
 } from "../services/footballService";
 import TeamAnalytics from "../components/TeamAnalytics";
 import TeamSkeleton from "../components/TeamSkeleton";
+import TeamForm from "../components/TeamForm";
 
 const TeamDetails = () => {
 
@@ -23,7 +24,7 @@ const TeamDetails = () => {
       try {
 
         const teamResponse = await getTeamDetails(id);
-        const matchesResponse = await getTeamMatches(id);
+        const matchesResponse = await getTeamPreviousMatches(id);
         const standingsResponse = await getStandings(leagueCode)
         const teamAnalytics =
             standingsResponse.data.find(
@@ -32,7 +33,7 @@ const TeamDetails = () => {
 
         setAnalytics(teamAnalytics);
         setTeam(teamResponse.data);
-        setMatches(matchesResponse.data.matches);
+        setMatches(matchesResponse.data);
 
       } catch (error) {
         console.log(error);
@@ -93,6 +94,13 @@ const TeamDetails = () => {
               <TeamAnalytics team={analytics} />
           </div>
       )}
+
+      <div className="mt-8">
+          <TeamForm
+              matches={matches}
+              teamId={parseInt(id)}
+          />
+      </div>
 
       {/* Squad Section */}
       <div className="mt-8 bg-zinc-900 rounded-3xl p-6 shadow-lg">
@@ -167,38 +175,38 @@ const TeamDetails = () => {
 
         <div className="space-y-4">
 
-          {matches.map((match) => (
+          {[...matches].reverse().map((match) => (
 
-            <div
-              key={match.id}
-              className="bg-zinc-800 rounded-2xl p-4 flex justify-between items-center"
-            >
+              <div
+                  key={match.matchId}
+                  className="bg-zinc-800 rounded-2xl p-4 flex justify-between items-center"
+              >
 
-              <div className="font-medium">
+                  <div className="font-medium">
 
-                {match.homeTeam.name}
+                      {match.homeTeam}
 
-                <span className="mx-2 text-zinc-400">
-                  vs
-                </span>
+                      <span className="mx-2 text-zinc-400">
+                          vs
+                      </span>
 
-                {match.awayTeam.name}
+                      {match.awayTeam}
+
+                  </div>
+
+                  <div className="text-xl font-bold">
+
+                      {match.homeScore}
+
+                      <span className="mx-2">
+                          :
+                      </span>
+
+                      {match.awayScore}
+
+                  </div>
 
               </div>
-
-              <div className="text-xl font-bold">
-
-                {match.score.fullTime.home ?? "-"}
-
-                <span className="mx-2">
-                  :
-                </span>
-
-                {match.score.fullTime.away ?? "-"}
-
-              </div>
-
-            </div>
 
           ))}
 

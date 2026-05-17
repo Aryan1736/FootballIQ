@@ -2,6 +2,7 @@ package com.footballiq.backened.Controller;
 
 import com.footballiq.backened.DTO.MatchDTO;
 import com.footballiq.backened.DTO.StandingDTO;
+import com.footballiq.backened.DTO.TeamMatchDTO;
 import com.footballiq.backened.Service.FootballService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,5 +29,10 @@ public class FootballController {
     @GetMapping("/api/football/matches/{leagueCode}")
     public List<MatchDTO> getMatches(@PathVariable String leagueCode) {
         return footballService.getMatches(leagueCode);
+    }
+
+    @GetMapping("/api/football/team/{teamId}/previous-matches")
+    public List<TeamMatchDTO> getTeamPreviousMatches(@PathVariable int teamId) {
+        return footballService.getTeamPreviousMatches(teamId);
     }
 }
