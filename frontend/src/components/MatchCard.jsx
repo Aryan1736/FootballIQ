@@ -4,7 +4,8 @@ function MatchCard({ match, league }) {
 
     const navigate = useNavigate();
 
-    const matchDate = new Date(match.matchDate);
+    const matchDate =
+        new Date(match.matchDate);
 
     const leagueLogos = {
         PL: "https://crests.football-data.org/PL.png",
@@ -16,94 +17,127 @@ function MatchCard({ match, league }) {
 
     return (
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-green-500/40 hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] transition duration-300">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-4 hover:border-green-500/40 hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] transition duration-300">
 
-            {/* Top Row */}
+            {/* Top */}
             <div className="flex items-center justify-between mb-4">
 
-                <div className="flex items-center gap-2">
+                <img
+                    src={leagueLogos[league]}
+                    alt={league}
+                    className="w-8 h-8 object-contain"
+                />
 
-                    <img
-                        src={leagueLogos[league]}
-                        alt={league}
-                        className="w-15 h-15 object-contain"
-                    />
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-green-500/10 text-green-400">
 
-
-                </div>
-
-                <span className="text-xs text-green-400 font-semibold">
                     {match.status}
+
                 </span>
 
             </div>
 
-            {/* Teams */}
-            <div className="space-y-4">
+            {/* Fixture Row */}
+            <div className="flex items-center justify-between">
 
                 {/* Home */}
-                <div className="flex items-center justify-between">
+                <div
+                    onClick={(e) => {
 
-                    <div
-                        onClick={() =>
-                            navigate(`/team/${match.homeTeamId}/${league}`)
-                        }
-                        className="flex items-center gap-3 cursor-pointer group"
-                    >
+                        e.stopPropagation();
 
-                        <img
-                            src={match.homeLogo}
-                            alt={match.homeTeam}
-                            className="w-10 h-10 object-contain"
-                        />
+                        navigate(
+                            `/team/${match.homeTeamId}/${league}`
+                        );
+                    }}
+                    className="flex items-center gap-3 cursor-pointer group flex-1 min-w-0"
+                >
 
-                        <p className="font-semibold group-hover:text-green-400 transition">
-                            {match.homeTeam}
-                        </p>
+                    <img
+                        src={match.homeLogo}
+                        alt={match.homeTeam}
+                        className="w-10 h-10 object-contain"
+                    />
 
-                    </div>
+                    <p className="font-semibold group-hover:text-green-400 transition text-sm md:text-base">
+
+                        {match.homeTeam}
+
+                    </p>
+
+                </div>
+
+                {/* Center */}
+                <div className="flex flex-col items-center min-w-[100px]">
+
+                    {match.homeScore != null ? (
+
+                        <>
+                            <h2 className="text-3xl font-bold text-white">
+
+                                {match.homeScore}
+                                {" - "}
+                                {match.awayScore}
+
+                            </h2>
+
+                            <p className="text-xs text-zinc-500">
+
+                                FT
+
+                            </p>
+                        </>
+
+                    ) : (
+
+                        <>
+                            <p className="text-xl font-bold text-green-400">
+
+                                {matchDate.toLocaleTimeString(
+                                    [],
+                                    {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    }
+                                )}
+
+                            </p>
+
+                            <p className="text-xs text-zinc-500">
+
+                                {matchDate.toLocaleDateString()}
+
+                            </p>
+                        </>
+                    )}
 
                 </div>
 
                 {/* Away */}
-                <div className="flex items-center justify-between">
+                <div
+                    onClick={(e) => {
 
-                    <div
-                        onClick={() =>
-                            navigate(`/team/${match.awayTeamId}/${league}`)
-                        }
-                        className="flex items-center gap-3 cursor-pointer group"
-                    >
+                        e.stopPropagation();
 
-                        <img
-                            src={match.awayLogo}
-                            alt={match.awayTeam}
-                            className="w-10 h-10 object-contain"
-                        />
+                        navigate(
+                            `/team/${match.awayTeamId}/${league}`
+                        );
+                    }}
+                    className="flex items-center justify-end gap-3 cursor-pointer group flex-1 min-w-0"
+                >
 
-                        <p className="font-semibold group-hover:text-green-400 transition">
-                            {match.awayTeam}
-                        </p>
+                    <p className="font-semibold group-hover:text-green-400 transition text-right text-sm md:text-base">
 
-                    </div>
+                        {match.awayTeam}
+
+                    </p>
+
+                    <img
+                        src={match.awayLogo}
+                        alt={match.awayTeam}
+                        className="w-10 h-10 object-contain"
+                    />
 
                 </div>
-
-            </div>
-
-            {/* Bottom */}
-            <div className="mt-5 pt-4 border-t border-zinc-800 flex items-center justify-between text-sm">
-
-                <span className="text-zinc-400">
-                    {matchDate.toLocaleDateString()}
-                </span>
-
-                <span className="text-zinc-300 font-medium">
-                    {matchDate.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })}
-                </span>
 
             </div>
 

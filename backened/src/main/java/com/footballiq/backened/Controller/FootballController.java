@@ -35,4 +35,9 @@ public class FootballController {
     public List<TeamMatchDTO> getTeamPreviousMatches(@PathVariable int teamId) {
         return footballService.getTeamPreviousMatches(teamId);
     }
+
+    @GetMapping("/api/football/results/{leagueCode}")
+    public List<MatchDTO> getFinishedMatches(@PathVariable String leagueCode) {
+        return footballService.getFinishedMatches(leagueCode);
+    }
 }

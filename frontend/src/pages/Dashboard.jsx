@@ -12,24 +12,117 @@ function Dashboard() {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [league, setLeague] = useState("PL");
+    const [standingsCache, setStandingsCache] = useState({});
+    const [matchesCache, setMatchesCache] = useState({});
 
     useEffect(() => {
 
-        Promise.all([
-            getStandings(league),
-            getMatches(league)
-        ])
-        .then(([standingsResponse, matchesResponse]) => {
+        const fetchLeagueData = async () => {
 
-            setStandings(standingsResponse.data);
-            setMatches(matchesResponse.data);
+            const leagues = [
+                "PL",
+                "PD",
+                "BL1",
+                "SA",
+                "FL1"
+            ];
 
-            setLoading(false);
+            leagues.forEach(async (code) => {
 
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+                if (
+                    code !== league &&
+                    !standingsCache[code]
+                ) {
+
+                    try {
+
+                        const [
+                            standingsResponse,
+                            matchesResponse
+                        ] = await Promise.all([
+                            getStandings(code),
+                            getMatches(code)
+                        ]);
+
+                        setStandingsCache((prev) => ({
+                            ...prev,
+                            [code]: standingsResponse.data
+                        }));
+
+                        setMatchesCache((prev) => ({
+                            ...prev,
+                            [code]: matchesResponse.data
+                        }));
+
+                    } catch (error) {
+
+                        console.log(error);
+                    }
+                }
+            });
+
+            setLoading(true);
+
+            // Use cached data instantly
+            if (
+                standingsCache[league] &&
+                matchesCache[league]
+            ) {
+
+                setStandings(
+                    standingsCache[league]
+                );
+
+                setMatches(
+                    matchesCache[league]
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+            try {
+
+                const [
+                    standingsResponse,
+                    matchesResponse
+                ] = await Promise.all([
+                    getStandings(league),
+                    getMatches(league)
+                ]);
+
+                const standingsData =
+                    standingsResponse.data;
+
+                const matchesData =
+                    matchesResponse.data;
+
+                setStandings(standingsData);
+                setMatches(matchesData);
+
+                // Save in cache
+                setStandingsCache((prev) => ({
+                    ...prev,
+                    [league]: standingsData
+                }));
+
+                setMatchesCache((prev) => ({
+                    ...prev,
+                    [league]: matchesData
+                }));
+
+            } catch (error) {
+
+                console.log(error);
+
+            } finally {
+
+                setLoading(false);
+            }
+        };
+
+        fetchLeagueData();
 
     }, [league]);
 

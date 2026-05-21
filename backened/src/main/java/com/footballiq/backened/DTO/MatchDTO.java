@@ -7,6 +7,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class MatchDTO {
 
+    private int matchId;
+
     private int homeTeamId;
     private int awayTeamId;
 
@@ -18,4 +20,7 @@ public class MatchDTO {
 
     private String matchDate;
     private String status;
+
+    private Integer homeScore;
+    private Integer awayScore;
 }

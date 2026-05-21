@@ -13,10 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class FootballService {
@@ -229,6 +226,9 @@ public class FootballService {
 
             for(JsonNode match : matches) {
 
+                int matchId =
+                        match.path("id").asInt();
+
                 int homeTeamId =
                         match.path("homeTeam")
                                 .path("id")
@@ -271,8 +271,31 @@ public class FootballService {
                                 .path("crest")
                                 .asText();
 
+                Integer homeScore =
+                        match.path("score")
+                                .path("fullTime")
+                                .path("home")
+                                .isNull()
+                                ? null
+                                : match.path("score")
+                                .path("fullTime")
+                                .path("home")
+                                .asInt();
+
+                Integer awayScore =
+                        match.path("score")
+                                .path("fullTime")
+                                .path("away")
+                                .isNull()
+                                ? null
+                                : match.path("score")
+                                .path("fullTime")
+                                .path("away")
+                                .asInt();
+
                 matchList.add(
                         new MatchDTO(
+                                matchId,
                                 homeTeamId,
                                 awayTeamId,
                                 homeTeam,
@@ -280,7 +303,9 @@ public class FootballService {
                                 homeLogo,
                                 awayLogo,
                                 date,
-                                status
+                                status,
+                                homeScore,
+                                awayScore
                         )
                 );
             }
@@ -402,5 +427,154 @@ public class FootballService {
         }
 
         return matchesList;
+    }
+
+    public List<MatchDTO> getFinishedMatches(
+            String leagueCode
+    ) {
+
+        String url =
+                "https://api.football-data.org/v4/competitions/"
+                        + leagueCode
+                        + "/matches?status=FINISHED";
+
+        RestTemplate restTemplate =
+                new RestTemplate();
+
+        HttpHeaders headers =
+                new HttpHeaders();
+
+        headers.set(
+                "X-Auth-Token",
+                apiKey
+        );
+
+        HttpEntity<String> entity =
+                new HttpEntity<>(headers);
+
+        ResponseEntity<String> response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        String.class
+                );
+
+        List<MatchDTO> matchList =
+                new ArrayList<>();
+
+        try {
+
+            ObjectMapper mapper =
+                    new ObjectMapper();
+
+            JsonNode root =
+                    mapper.readTree(
+                            response.getBody()
+                    );
+
+            JsonNode matches =
+                    root.path("matches");
+
+            for(JsonNode match : matches) {
+
+                int matchId =
+                        match.path("id")
+                                .asInt();
+
+                int homeTeamId =
+                        match.path("homeTeam")
+                                .path("id")
+                                .asInt();
+
+                int awayTeamId =
+                        match.path("awayTeam")
+                                .path("id")
+                                .asInt();
+
+                String homeTeam =
+                        match.path("homeTeam")
+                                .path("name")
+                                .asText();
+
+                String awayTeam =
+                        match.path("awayTeam")
+                                .path("name")
+                                .asText();
+
+                String date =
+                        match.path("utcDate")
+                                .asText();
+
+                String status =
+                        match.path("status")
+                                .asText();
+
+                String homeLogo =
+                        match.path("homeTeam")
+                                .path("crest")
+                                .asText();
+
+                String awayLogo =
+                        match.path("awayTeam")
+                                .path("crest")
+                                .asText();
+
+                Integer homeScore =
+                        match.path("score")
+                                .path("fullTime")
+                                .path("home")
+                                .isNull()
+                                ? null
+                                : match.path("score")
+                                .path("fullTime")
+                                .path("home")
+                                .asInt();
+
+                Integer awayScore =
+                        match.path("score")
+                                .path("fullTime")
+                                .path("away")
+                                .isNull()
+                                ? null
+                                : match.path("score")
+                                .path("fullTime")
+                                .path("away")
+                                .asInt();
+
+                matchList.add(
+                        new MatchDTO(
+                                matchId,
+                                homeTeamId,
+                                awayTeamId,
+                                homeTeam,
+                                awayTeam,
+                                homeLogo,
+                                awayLogo,
+                                date,
+                                status,
+                                homeScore,
+                                awayScore
+                        )
+                );
+            }
+
+        } catch(Exception e) {
+
+            e.printStackTrace();
+        }
+
+        Collections.reverse(matchList);
+
+        if(matchList.size() > 15) {
+
+            matchList =
+                    matchList.subList(
+                            0,
+                            15
+                    );
+        }
+
+        return matchList;
     }
 }

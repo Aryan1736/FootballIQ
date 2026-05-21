@@ -23,3 +23,9 @@ export const getTeamPreviousMatches = (teamId) => {
         `${API_URL}/team/${teamId}/previous-matches`
     );
 };
+
+export const getFinishedMatches =(league) => {
+    return axios.get(
+        `${API_URL}/results/${league}`
+    );
+};

@@ -17,35 +17,87 @@ const TeamDetails = () => {
   const [matches, setMatches] = useState([]);
   const [analytics, setAnalytics] = useState(null);
 
+  const [teamLoading, setTeamLoading] = useState(true);
+  const [matchesLoading, setMatchesLoading] = useState(true);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  const [teamCache, setTeamCache] = useState({});
+  const [matchesCache, setMatchesCache] = useState({});
+  const [analyticsCache, setAnalyticsCache] = useState({});
+
   useEffect(() => {
 
-    const fetchData = async () => {
+      const fetchData = async () => {
 
-      try {
+          if (
+              teamCache[id] &&
+              matchesCache[id] &&
+              analyticsCache[id]
+          ) {
 
-        const teamResponse = await getTeamDetails(id);
-        const matchesResponse = await getTeamPreviousMatches(id);
-        const standingsResponse = await getStandings(leagueCode)
-        const teamAnalytics =
-            standingsResponse.data.find(
-                (club) => club.teamName === teamResponse.data.name
-            );
+              setTeam(teamCache[id]);
+              setMatches(matchesCache[id]);
+              setAnalytics(analyticsCache[id]);
 
-        setAnalytics(teamAnalytics);
-        setTeam(teamResponse.data);
-        setMatches(matchesResponse.data);
+              setTeamLoading(false);
+              setMatchesLoading(false);
+              setAnalyticsLoading(false);
 
-      } catch (error) {
-        console.log(error);
-      }
-    };
+              return;
+          }
 
-    fetchData();
+          try {
 
-  }, [id]);
+              const [
+                  teamResponse,
+                  matchesResponse,
+                  standingsResponse
+              ] = await Promise.all([
+                  getTeamDetails(id),
+                  getTeamPreviousMatches(id),
+                  getStandings(leagueCode)
+              ]);
 
-  if (!team) {
-    return <TeamSkeleton />;
+              setTeam(teamResponse.data);
+              setTeamCache((prev) => ({
+                  ...prev,
+                  [id]: teamResponse.data
+              }));
+              setTeamLoading(false);
+
+              setMatches(matchesResponse.data);
+              setMatchesCache((prev) => ({
+                  ...prev,
+                  [id]: matchesResponse.data
+              }));
+              setMatchesLoading(false);
+
+              const teamAnalytics =
+                  standingsResponse.data.find(
+                      (club) =>
+                          club.teamName ===
+                          teamResponse.data.name
+                  );
+
+              setAnalytics(teamAnalytics);
+              setAnalyticsCache((prev) => ({
+                  ...prev,
+                  [id]: teamAnalytics
+              }));
+              setAnalyticsLoading(false);
+
+          } catch (error) {
+
+              console.log(error);
+          }
+      };
+
+      fetchData();
+
+  }, [id, leagueCode]);
+
+  if (teamLoading) {
+      return <TeamSkeleton />;
   }
 
   return (
@@ -89,10 +141,16 @@ const TeamDetails = () => {
         </div>
       </div>
 
-      {analytics && (
+      {analyticsLoading ? (
+
+          <div className="mt-8 bg-zinc-900 rounded-3xl h-52 animate-pulse"></div>
+
+      ) : (
+
           <div className="mt-8">
               <TeamAnalytics team={analytics} />
           </div>
+
       )}
 
       <div className="mt-8">
@@ -169,48 +227,67 @@ const TeamDetails = () => {
       {/* Recent Matches */}
       <div className="mt-8 bg-zinc-900 rounded-3xl p-6 shadow-lg">
 
-        <h2 className="text-3xl font-bold mb-6">
-          Recent Matches
-        </h2>
+          <h2 className="text-3xl font-bold mb-6">
+              Recent Matches
+          </h2>
 
-        <div className="space-y-4">
+          {matchesLoading ? (
 
-          {[...matches].reverse().map((match) => (
+              <div className="space-y-4">
 
-              <div
-                  key={match.matchId}
-                  className="bg-zinc-800 rounded-2xl p-4 flex justify-between items-center"
-              >
+                  {[...Array(5)].map((_, index) => (
 
-                  <div className="font-medium">
+                      <div
+                          key={index}
+                          className="bg-zinc-800 h-20 rounded-2xl animate-pulse"
+                      ></div>
 
-                      {match.homeTeam}
-
-                      <span className="mx-2 text-zinc-400">
-                          vs
-                      </span>
-
-                      {match.awayTeam}
-
-                  </div>
-
-                  <div className="text-xl font-bold">
-
-                      {match.homeScore}
-
-                      <span className="mx-2">
-                          :
-                      </span>
-
-                      {match.awayScore}
-
-                  </div>
+                  ))}
 
               </div>
 
-          ))}
+          ) : (
 
-        </div>
+              <div className="space-y-4">
+
+                  {[...matches].reverse().map((match) => (
+
+                      <div
+                          key={match.matchId}
+                          className="bg-zinc-800 rounded-2xl p-4 flex justify-between items-center"
+                      >
+
+                          <div className="font-medium">
+
+                              {match.homeTeam}
+
+                              <span className="mx-2 text-zinc-400">
+                                  vs
+                              </span>
+
+                              {match.awayTeam}
+
+                          </div>
+
+                          <div className="text-xl font-bold">
+
+                              {match.homeScore}
+
+                              <span className="mx-2">
+                                  :
+                              </span>
+
+                              {match.awayScore}
+
+                          </div>
+
+                      </div>
+
+                  ))}
+
+              </div>
+
+          )}
 
       </div>
 
