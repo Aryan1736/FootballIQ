@@ -1,158 +1,90 @@
 import { useNavigate } from "react-router-dom";
+import { getLeague } from "../lib/leagues";
 
 function MatchCard({ match, league }) {
-
     const navigate = useNavigate();
+    const matchDate = new Date(match.matchDate);
+    const isFinished = match.homeScore !== null && match.homeScore !== undefined;
+    const selectedLeague = getLeague(league);
 
-    const matchDate =
-        new Date(match.matchDate);
-
-    const homeWon =
-        match.homeScore >
-        match.awayScore;
-
-    const awayWon =
-        match.awayScore >
-        match.homeScore;
-
-    const isFinished =
-        match.homeScore != null;
-
-    const leagueLogos = {
-        PL: "https://crests.football-data.org/PL.png",
-        PD: "https://crests.football-data.org/PD.png",
-        BL1: "https://crests.football-data.org/BL1.png",
-        SA: "https://crests.football-data.org/SA.png",
-        FL1: "https://crests.football-data.org/FL1.png",
+    const openTeam = (teamId) => {
+        navigate(`/team/${teamId}/${league}`);
     };
 
     return (
-
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-4 hover:border-green-500/40 hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] transition duration-300">
-
-            {/* Top */}
-            <div className="flex items-center justify-between mb-4">
-
-                <img
-                    src={leagueLogos[league]}
-                    alt={league}
-                    className="w-8 h-8 object-contain"
-                />
-
-                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-green-500/10 text-green-400">
-
-                    {match.status}
-
-                </span>
-
-            </div>
-
-            {/* Fixture Row */}
-            <div className="flex items-center justify-between">
-
-                {/* Home */}
-                <div
-                    onClick={(e) => {
-
-                        e.stopPropagation();
-
-                        navigate(
-                            `/team/${match.homeTeamId}/${league}`
-                        );
-                    }}
-                    className="flex items-center gap-3 cursor-pointer group flex-1 min-w-0"
-                >
-
+        <article className="group rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-emerald-300/50 hover:bg-white/[0.07]">
+            <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs font-medium text-zinc-400">
                     <img
-                        src={match.homeLogo}
-                        alt={match.homeTeam}
-                        className="w-10 h-10 object-contain"
+                        src={selectedLeague.logo}
+                        alt=""
+                        className="h-6 w-6 object-contain"
                     />
-
-                    <p className="font-semibold truncate text-white">
-
-                        {match.homeTeam}
-
-                    </p>
-
+                    <span>{selectedLeague.name}</span>
                 </div>
 
-                {/* Center */}
-                <div className="flex flex-col items-center min-w-[100px]">
+                <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+                    {isFinished ? "Full time" : match.status}
+                </span>
+            </div>
 
-                    {match.homeScore != null ? (
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                <button
+                    type="button"
+                    onClick={() => openTeam(match.homeTeamId)}
+                    className="flex min-w-0 items-center gap-3 text-left"
+                >
+                    <img
+                        src={match.homeLogo}
+                        alt=""
+                        className="h-11 w-11 object-contain"
+                    />
+                    <span className="truncate font-semibold text-white group-hover:text-emerald-100">
+                        {match.homeTeam}
+                    </span>
+                </button>
 
+                <div className="min-w-28 rounded-2xl bg-zinc-950/70 px-4 py-3 text-center">
+                    {isFinished ? (
                         <>
-                            <h2 className="text-3xl font-extrabold text-white">
-
-                                {match.homeScore}
-                                {" - "}
-                                {match.awayScore}
-
-                            </h2>
-
-                            <p className="text-xs text-zinc-500">
-
-                                FT • Full Time
-
+                            <p className="text-2xl font-black text-white">
+                                {match.homeScore} - {match.awayScore}
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-zinc-500">
+                                FT
                             </p>
                         </>
-
                     ) : (
-
                         <>
-                            <p className="text-xl font-bold text-green-400">
-
-                                {matchDate.toLocaleTimeString(
-                                    [],
-                                    {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    }
-                                )}
-
+                            <p className="text-lg font-black text-emerald-300">
+                                {matchDate.toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                })}
                             </p>
-
-                            <p className="text-xs text-zinc-500">
-
+                            <p className="mt-1 text-xs text-zinc-500">
                                 {matchDate.toLocaleDateString()}
-
                             </p>
                         </>
                     )}
-
                 </div>
 
-                {/* Away */}
-                <div
-                    onClick={(e) => {
-
-                        e.stopPropagation();
-
-                        navigate(
-                            `/team/${match.awayTeamId}/${league}`
-                        );
-                    }}
-                    className="flex items-center justify-end gap-3 cursor-pointer group flex-1 min-w-0"
+                <button
+                    type="button"
+                    onClick={() => openTeam(match.awayTeamId)}
+                    className="flex min-w-0 items-center justify-end gap-3 text-right"
                 >
-
-                   <p className="font-semibold truncate text-white">
-
+                    <span className="truncate font-semibold text-white group-hover:text-emerald-100">
                         {match.awayTeam}
-
-                    </p>
-
+                    </span>
                     <img
                         src={match.awayLogo}
-                        alt={match.awayTeam}
-                        className="w-10 h-10 object-contain"
+                        alt=""
+                        className="h-11 w-11 object-contain"
                     />
-
-                </div>
-
+                </button>
             </div>
-
-        </div>
+        </article>
     );
 }
 

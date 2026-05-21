@@ -1,134 +1,86 @@
 import {
-    PieChart,
-    Pie,
     Cell,
-    Tooltip,
-    ResponsiveContainer
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip
 } from "recharts";
+import EmptyState from "./EmptyState";
 
 function TeamAnalytics({ team }) {
+    if (!team) {
+        return (
+            <EmptyState
+                title="Analytics unavailable"
+                message="This team could not be matched to the selected league table."
+            />
+        );
+    }
 
     const chartData = [
-        { name: "Wins", value: team.won },
-        { name: "Draws", value: team.draw },
-        { name: "Losses", value: team.lost }
+        { name: "Wins", value: team.won, color: "#34d399" },
+        { name: "Draws", value: team.draw, color: "#fbbf24" },
+        { name: "Losses", value: team.lost, color: "#fb7185" }
     ];
 
     return (
-
-        <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg">
-
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-
-                    <h2 className="text-3xl font-bold text-white">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
+                        Performance
+                    </p>
+                    <h2 className="mt-1 text-2xl font-bold text-white">
                         Team Analytics
                     </h2>
-
-                    <p className="text-zinc-400 mt-1">
-                        Season performance overview
-                    </p>
-
                 </div>
 
-                <div className="bg-zinc-800 px-5 py-3 rounded-2xl">
-
-                    <p className="text-zinc-400 text-sm">
+                <div className="rounded-2xl bg-emerald-300 px-5 py-3 text-zinc-950">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em]">
                         Points
                     </p>
-
-                    <h3 className="text-3xl font-bold text-green-400">
-                        {team.points}
-                    </h3>
-
+                    <p className="text-3xl font-black">{team.points}</p>
                 </div>
-
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
-
-                <div className="bg-zinc-800 p-4 rounded-xl">
-                    <p className="text-zinc-400">Wins</p>
-
-                    <h3 className="text-2xl font-bold text-green-400">
-                        {team.won}
-                    </h3>
-                </div>
-
-                <div className="bg-zinc-800 p-4 rounded-xl">
-                    <p className="text-zinc-400">Draws</p>
-
-                    <h3 className="text-2xl font-bold text-yellow-400">
-                        {team.draw}
-                    </h3>
-                </div>
-
-                <div className="bg-zinc-800 p-4 rounded-xl">
-                    <p className="text-zinc-400">Losses</p>
-
-                    <h3 className="text-2xl font-bold text-red-400">
-                        {team.lost}
-                    </h3>
-                </div>
-
-                <div className="bg-zinc-800 p-4 rounded-xl">
-                    <p className="text-zinc-400">Goal Difference</p>
-
-                    <h3 className="text-2xl font-bold text-blue-400">
-                        {team.goalDifference}
-                    </h3>
-                </div>
-
-                <div className="bg-zinc-800 p-4 rounded-xl">
-                    <p className="text-zinc-400">Goals Scored</p>
-
-                    <h3 className="text-2xl font-bold text-green-300">
-                        {team.goalsFor}
-                    </h3>
-                </div>
-
-                <div className="bg-zinc-800 p-4 rounded-xl">
-                    <p className="text-zinc-400">Goals Conceded</p>
-
-                    <h3 className="text-2xl font-bold text-red-300">
-                        {team.goalsAgainst}
-                    </h3>
-                </div>
-
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                {[
+                    ["Wins", team.won, "text-emerald-300"],
+                    ["Draws", team.draw, "text-amber-300"],
+                    ["Losses", team.lost, "text-rose-300"],
+                    ["Goal difference", team.goalDifference, "text-sky-300"],
+                    ["Goals scored", team.goalsFor, "text-emerald-200"],
+                    ["Goals conceded", team.goalsAgainst, "text-rose-200"]
+                ].map(([label, value, tone]) => (
+                    <div key={label} className="rounded-2xl bg-zinc-950/50 p-4">
+                        <p className="text-sm text-zinc-500">{label}</p>
+                        <p className={`mt-2 text-2xl font-black ${tone}`}>
+                            {value}
+                        </p>
+                    </div>
+                ))}
             </div>
 
-            {/* Pie Chart */}
-            <div className="mt-10 h-80">
-
+            <div className="mt-8 h-72">
                 <ResponsiveContainer width="100%" height="100%">
-
                     <PieChart>
-
-                        <Pie
-                            data={chartData}
-                            dataKey="value"
-                            outerRadius={120}
-                            label
-                        >
-
-                            <Cell fill="#22c55e" />
-                            <Cell fill="#eab308" />
-                            <Cell fill="#ef4444" />
-
+                        <Pie data={chartData} dataKey="value" innerRadius={70} outerRadius={105}>
+                            {chartData.map((entry) => (
+                                <Cell key={entry.name} fill={entry.color} />
+                            ))}
                         </Pie>
-
-                        <Tooltip />
-
+                        <Tooltip
+                            contentStyle={{
+                                background: "#09090b",
+                                border: "1px solid rgba(255,255,255,0.12)",
+                                borderRadius: "16px",
+                                color: "#fff"
+                            }}
+                        />
                     </PieChart>
-
                 </ResponsiveContainer>
-
             </div>
-
-        </div>
+        </section>
     );
 }
 
