@@ -3,6 +3,7 @@ package com.footballiq.backened.Controller;
 import com.footballiq.backened.DTO.MatchDTO;
 import com.footballiq.backened.DTO.StandingDTO;
 import com.footballiq.backened.DTO.TeamMatchDTO;
+import com.footballiq.backened.DTO.TopScorerDTO;
 import com.footballiq.backened.Service.FootballService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,5 +40,10 @@ public class FootballController {
     @GetMapping("/api/football/results/{leagueCode}")
     public List<MatchDTO> getFinishedMatches(@PathVariable String leagueCode) {
         return footballService.getFinishedMatches(leagueCode);
+    }
+
+    @GetMapping("/api/football/scorers/{leagueCode}")
+    public List<TopScorerDTO> getTopScorers(@PathVariable String leagueCode) {
+        return footballService.getTopScorers(leagueCode);
     }
 }

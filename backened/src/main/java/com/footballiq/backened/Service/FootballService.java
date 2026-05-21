@@ -3,6 +3,7 @@ package com.footballiq.backened.Service;
 import com.footballiq.backened.DTO.MatchDTO;
 import com.footballiq.backened.DTO.StandingDTO;
 import com.footballiq.backened.DTO.TeamMatchDTO;
+import com.footballiq.backened.DTO.TopScorerDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -429,9 +430,33 @@ public class FootballService {
         return matchesList;
     }
 
+    private final Map<String,
+            List<MatchDTO>>
+            finishedMatchesCache =
+            new HashMap<>();
+
+    private final Map<String,
+            Long>
+            finishedMatchesCacheTime =
+            new HashMap<>();
+
     public List<MatchDTO> getFinishedMatches(
             String leagueCode
     ) {
+
+        if(finishedMatchesCache.containsKey(leagueCode)
+
+                &&
+
+                System.currentTimeMillis()
+                        -
+                        finishedMatchesCacheTime
+                                .get(leagueCode)
+                        < 300000) {
+
+            return finishedMatchesCache
+                    .get(leagueCode);
+        }
 
         String url =
                 "https://api.football-data.org/v4/competitions/"
@@ -575,6 +600,134 @@ public class FootballService {
                     );
         }
 
+        finishedMatchesCache.put(
+                leagueCode,
+                matchList
+        );
+
+        finishedMatchesCacheTime.put(
+                leagueCode,
+                System.currentTimeMillis()
+        );
+
         return matchList;
+    }
+
+    private final Map<String,
+            List<TopScorerDTO>>
+            scorersCache =
+            new HashMap<>();
+
+    private final Map<String,
+            Long>
+            scorersCacheTime =
+            new HashMap<>();
+
+    public List<TopScorerDTO> getTopScorers(
+            String leagueCode
+    ) {
+
+        if(scorersCache.containsKey(leagueCode)
+
+                &&
+
+                System.currentTimeMillis()
+                        -
+                        scorersCacheTime
+                                .get(leagueCode)
+                        < 300000) {
+
+            return scorersCache
+                    .get(leagueCode);
+        }
+
+        String url =
+                "https://api.football-data.org/v4/competitions/"
+                        + leagueCode
+                        + "/scorers";
+
+        RestTemplate restTemplate =
+                new RestTemplate();
+
+        HttpHeaders headers =
+                new HttpHeaders();
+
+        headers.set(
+                "X-Auth-Token",
+                apiKey
+        );
+
+        HttpEntity<String> entity =
+                new HttpEntity<>(headers);
+
+        ResponseEntity<String> response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        String.class
+                );
+
+        List<TopScorerDTO> scorers =
+                new ArrayList<>();
+
+        try {
+
+            ObjectMapper mapper =
+                    new ObjectMapper();
+
+            JsonNode root =
+                    mapper.readTree(
+                            response.getBody()
+                    );
+
+            JsonNode scorersNode =
+                    root.path("scorers");
+
+            for(JsonNode scorer
+                    : scorersNode) {
+
+                scorers.add(
+
+                        new TopScorerDTO(
+
+                                scorer.path("player")
+                                        .path("id")
+                                        .asInt(),
+
+                                scorer.path("player")
+                                        .path("name")
+                                        .asText(),
+
+                                scorer.path("team")
+                                        .path("name")
+                                        .asText(),
+
+                                scorer.path("team")
+                                        .path("crest")
+                                        .asText(),
+
+                                scorer.path("goals")
+                                        .asInt()
+                        )
+                );
+            }
+
+        } catch(Exception e) {
+
+            e.printStackTrace();
+        }
+
+        scorersCache.put(
+                leagueCode,
+                scorers
+        );
+
+        scorersCacheTime.put(
+                leagueCode,
+                System.currentTimeMillis()
+        );
+
+        return scorers;
     }
 }

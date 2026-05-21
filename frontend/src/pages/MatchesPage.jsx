@@ -7,11 +7,18 @@ import Navbar from "../components/Navbar";
 function MatchesPage() {
 
     const [matches, setMatches] = useState([]);
-    const [league, setLeague] = useState("PL");
-    const [showResults,setShowResults] =useState(false);
-    const [matchesCache,setMatchesCache] =useState({});
+    const [league, setLeague] = useState(localStorage.getItem("league")|| "PL");
+    const searchParams = new URLSearchParams(window.location.search);
+    const [showResults,setShowResults] = useState(searchParams.get("tab") === "results");
+    const [matchesCache,setMatchesCache] = useState({});
+    const [loading,setLoading] =useState(false);
 
     useEffect(() => {
+
+        localStorage.setItem(
+            "league",
+            league
+        );
 
         const cacheKey =
             `${league}-${showResults}`;
@@ -24,6 +31,8 @@ function MatchesPage() {
 
             return;
         }
+
+        setLoading(true);
 
         const fetchMatches =
             showResults
@@ -48,6 +57,10 @@ function MatchesPage() {
             .catch((error) => {
 
                 console.log(error);
+            })
+            .finally(() => {
+
+                setLoading(false);
             });
 
     }, [
@@ -122,41 +135,60 @@ function MatchesPage() {
 
             </div>
 
-            <div className="space-y-8">
+            {loading ? (
 
-            {Object.entries(groupedMatches).map(
-                ([date, dailyMatches]) => (
+                <div className="space-y-4">
 
-                    <div
-                        key={date}
-                        className="space-y-4"
-                    >
+                    {[1,2,3,4].map((item) => (
 
-                        <h2 className="text-2xl font-bold text-zinc-300 border-b border-zinc-800 pb-2">
+                        <div
+                            key={item}
+                            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 animate-pulse h-28"
+                        />
 
-                            {date}
+                    ))}
 
-                        </h2>
+                </div>
 
-                        <div className="space-y-4">
+            ) : (
 
-                            {dailyMatches.map((match) => (
+                <div className="space-y-8">
 
-                                <MatchCard
-                                    league={league}
-                                    key={match.matchId}
-                                    match={match}
-                                />
+                    {Object.entries(groupedMatches).map(
+                        ([date, dailyMatches]) => (
 
-                            ))}
+                            <div
+                                key={date}
+                                className="space-y-4"
+                            >
 
-                        </div>
+                                <h2 className="text-2xl font-bold text-zinc-300 border-b border-zinc-800 pb-2">
 
-                    </div>
-                )
+                                    {date}
+
+                                </h2>
+
+                                <div className="space-y-4">
+
+                                    {dailyMatches.map((match) => (
+
+                                        <MatchCard
+                                            league={league}
+                                            key={match.matchId}
+                                            match={match}
+                                        />
+
+                                    ))}
+
+                                </div>
+
+                            </div>
+                        )
+                    )}
+
+                </div>
+
             )}
-
-        </div>
 
         </div>
     );

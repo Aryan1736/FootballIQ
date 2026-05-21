@@ -1,21 +1,90 @@
 import { useEffect, useState } from "react";
-import { getStandings, getMatches } from "../services/footballService";
+import { getStandings, getMatches, getTopScorers, getFinishedMatches } from "../services/footballService";
 import MatchCard from "../components/MatchCard";
 import StandingsTable from "../components/StandingsTable";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 import DashboardSkeleton from "../components/DashboardSkeleton";
+import TopScorers from "../components/TopScorers";
+import LatestResults from "../components/LatestResults";
+
 
 function Dashboard() {
 
     const [standings, setStandings] = useState([]);
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [league, setLeague] = useState("PL");
+    const [league, setLeague] = useState(localStorage.getItem("league")|| "PL")
     const [standingsCache, setStandingsCache] = useState({});
     const [matchesCache, setMatchesCache] = useState({});
+    const [scorers,setScorers] =useState([]);
+    const [scorersCache,setScorersCache] =useState({});
+    const [results,setResults] =useState([]);
+    const [resultsCache,setResultsCache] =useState({});
 
     useEffect(() => {
+
+        localStorage.setItem(
+            "league",
+            league
+        );
+
+        const cacheKey =
+            league;
+
+        if(scorersCache[cacheKey]) {
+
+            setScorers(
+                scorersCache[cacheKey]
+            );
+
+        } else {
+
+            getTopScorers(league)
+                .then((response) => {
+
+                    setScorers(
+                        response.data
+                    );
+
+                    setScorersCache(
+                        (prev) => ({
+                            ...prev,
+                            [cacheKey]:
+                                response.data
+                        })
+                    );
+                });
+        }
+
+        if(resultsCache[league]) {
+
+            setResults(
+                resultsCache[league]
+            );
+
+        } else {
+
+            getFinishedMatches(league)
+                .then((response) => {
+
+                    const latest =
+                        response.data
+                            .slice(0, 5);
+
+                    setResults(
+                        latest
+                    );
+
+                    setResultsCache(
+                        (prev) => ({
+                            ...prev,
+                            [league]:
+                                latest
+                        })
+                    );
+                });
+        }
 
         const fetchLeagueData = async () => {
 
@@ -180,6 +249,23 @@ function Dashboard() {
                     >
                         View All Matches →
                     </Link>
+
+                </div>
+
+                <div className="mt-8">
+
+                    <TopScorers
+                        scorers={scorers}
+                    />
+
+                </div>
+
+                <div className="mt-8">
+
+                    <LatestResults
+                        results={results}
+                         league={league}
+                    />
 
                 </div>
 

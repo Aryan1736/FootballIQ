@@ -7,6 +7,17 @@ function MatchCard({ match, league }) {
     const matchDate =
         new Date(match.matchDate);
 
+    const homeWon =
+        match.homeScore >
+        match.awayScore;
+
+    const awayWon =
+        match.awayScore >
+        match.homeScore;
+
+    const isFinished =
+        match.homeScore != null;
+
     const leagueLogos = {
         PL: "https://crests.football-data.org/PL.png",
         PD: "https://crests.football-data.org/PD.png",
@@ -58,7 +69,7 @@ function MatchCard({ match, league }) {
                         className="w-10 h-10 object-contain"
                     />
 
-                    <p className="font-semibold group-hover:text-green-400 transition text-sm md:text-base">
+                    <p className="font-semibold truncate text-white">
 
                         {match.homeTeam}
 
@@ -72,7 +83,7 @@ function MatchCard({ match, league }) {
                     {match.homeScore != null ? (
 
                         <>
-                            <h2 className="text-3xl font-bold text-white">
+                            <h2 className="text-3xl font-extrabold text-white">
 
                                 {match.homeScore}
                                 {" - "}
@@ -82,7 +93,7 @@ function MatchCard({ match, league }) {
 
                             <p className="text-xs text-zinc-500">
 
-                                FT
+                                FT • Full Time
 
                             </p>
                         </>
@@ -125,7 +136,7 @@ function MatchCard({ match, league }) {
                     className="flex items-center justify-end gap-3 cursor-pointer group flex-1 min-w-0"
                 >
 
-                    <p className="font-semibold group-hover:text-green-400 transition text-right text-sm md:text-base">
+                   <p className="font-semibold truncate text-white">
 
                         {match.awayTeam}
 

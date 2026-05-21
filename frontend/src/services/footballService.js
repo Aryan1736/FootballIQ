@@ -29,3 +29,9 @@ export const getFinishedMatches =(league) => {
         `${API_URL}/results/${league}`
     );
 };
+
+export const getTopScorers = (league) => {
+    return axios.get(
+        `${API_URL}/scorers/${league}`
+    );
+};

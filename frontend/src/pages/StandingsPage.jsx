@@ -6,9 +6,14 @@ import Navbar from "../components/Navbar";
 function StandingsPage() {
 
     const [standings, setStandings] = useState([]);
-    const [league, setLeague] = useState("PL");
+    const [league, setLeague] = useState(localStorage.getItem("league")|| "PL")
 
     useEffect(() => {
+
+        localStorage.setItem(
+            "league",
+            league
+        );
 
         getStandings(league)
             .then((response) => {
