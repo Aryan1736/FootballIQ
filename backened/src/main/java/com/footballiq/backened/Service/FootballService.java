@@ -30,6 +30,13 @@ public class FootballService {
     private Map<String, Long> standingsCacheTime =
             new HashMap<>();
 
+    private final SearchService searchService;
+
+
+    public FootballService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     public List<StandingDTO> getStandings(String leagueCode){
 
         if (standingsCache.containsKey(leagueCode) &&
@@ -623,9 +630,10 @@ public class FootballService {
             scorersCacheTime =
             new HashMap<>();
 
-    public List<TopScorerDTO> getTopScorers(
-            String leagueCode
-    ) {
+
+    public List<TopScorerDTO> getTopScorers(String leagueCode) {
+
+
 
         if(scorersCache.containsKey(leagueCode)
 
@@ -637,8 +645,25 @@ public class FootballService {
                                 .get(leagueCode)
                         < 300000) {
 
-            return scorersCache
-                    .get(leagueCode);
+            List<TopScorerDTO>
+                    cachedScorers =
+                    scorersCache.get(
+                            leagueCode
+                    );
+
+            for(TopScorerDTO scorer
+                    : cachedScorers) {
+
+                searchService
+                        .registerPlayer(
+
+                                scorer.getPlayerId(),
+
+                                scorer.getPlayerName()
+                        );
+            }
+
+            return cachedScorers;
         }
 
         String url =
@@ -710,7 +735,22 @@ public class FootballService {
                                 scorer.path("goals")
                                         .asInt()
                         )
+
                 );
+
+                searchService
+                        .registerPlayer(
+
+                                scorer
+                                        .path("player")
+                                        .path("id")
+                                        .asInt(),
+
+                                scorer
+                                        .path("player")
+                                        .path("name")
+                                        .asText()
+                        );
             }
 
         } catch(Exception e) {

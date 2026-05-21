@@ -35,3 +35,20 @@ export const getTopScorers = (league) => {
         `${API_URL}/scorers/${league}`
     );
 };
+
+export const getPlayerDetails = (id) => {
+    return axios.get(
+         `${API_URL}/player/${id}`
+    );
+};
+
+export const searchEntities = (query) => {
+    return axios.get(
+        `${API_URL}/search`,
+        {
+            params: {
+                query
+            }
+        }
+    );
+};

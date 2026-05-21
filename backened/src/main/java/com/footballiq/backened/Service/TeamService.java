@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,13 @@ public class TeamService {
 
     private final String BASE_URL = "https://api.football-data.org/v4";
 
+    private final SearchService searchService;
+
+    public TeamService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+
     private final Map<Integer,
             String>
             teamCache =
@@ -26,7 +35,10 @@ public class TeamService {
             teamCacheTime =
             new HashMap<>();
 
+
     public String getTeamDetails(int id) {
+
+
 
         if(teamCache.containsKey(id)
 
@@ -36,6 +48,38 @@ public class TeamService {
                         -
                         teamCacheTime.get(id)
                         < 300000) {
+
+            try {
+
+                ObjectMapper mapper =
+                        new ObjectMapper();
+
+                JsonNode root =
+                        mapper.readTree(
+                                teamCache.get(id)
+                        );
+
+                JsonNode squad =
+                        root.path("squad");
+
+                for(JsonNode player
+                        : squad) {
+
+                    searchService
+                            .registerPlayer(
+
+                                    player.path("id")
+                                            .asInt(),
+
+                                    player.path("name")
+                                            .asText()
+                            );
+                }
+
+            } catch(Exception e) {
+
+                e.printStackTrace();
+            }
 
             return teamCache.get(id);
         }
@@ -55,6 +99,38 @@ public class TeamService {
                 entity,
                 String.class
         );
+
+        try {
+
+            ObjectMapper mapper =
+                    new ObjectMapper();
+
+            JsonNode root =
+                    mapper.readTree(
+                            response.getBody()
+                    );
+
+            JsonNode squad =
+                    root.path("squad");
+
+            for(JsonNode player
+                    : squad) {
+
+                searchService
+                        .registerPlayer(
+
+                                player.path("id")
+                                        .asInt(),
+
+                                player.path("name")
+                                        .asText()
+                        );
+            }
+
+        } catch(Exception e) {
+
+            e.printStackTrace();
+        }
 
         teamCache.put(
                 id,

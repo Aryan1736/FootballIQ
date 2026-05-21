@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   getTeamDetails,
   getTeamPreviousMatches,
@@ -24,6 +25,8 @@ const TeamDetails = () => {
   const [teamCache, setTeamCache] = useState({});
   const [matchesCache, setMatchesCache] = useState({});
   const [analyticsCache, setAnalyticsCache] = useState({});
+
+  const navigate = useNavigate();
 
   useEffect(() => {
 
@@ -195,24 +198,29 @@ const TeamDetails = () => {
 
               {team.squad.map((player) => (
 
-                <tr
-                  key={player.id}
-                  className="border-b border-zinc-800 hover:bg-zinc-800 transition"
-                >
+                  <tr
+                      key={player.id}
+                      onClick={() =>
+                          navigate(
+                              `/player/${player.id}`
+                          )
+                      }
+                      className="border-b border-zinc-800 hover:bg-zinc-800 hover:text-green-400 transition cursor-pointer"
+                  >
 
-                  <td className="py-4">
-                    {player.name}
-                  </td>
+                      <td className="py-4">
+                          {player.name}
+                      </td>
 
-                  <td className="py-4">
-                    {player.position || "N/A"}
-                  </td>
+                      <td className="py-4">
+                          {player.position || "N/A"}
+                      </td>
 
-                  <td className="py-4">
-                    {player.nationality}
-                  </td>
+                      <td className="py-4">
+                          {player.nationality}
+                      </td>
 
-                </tr>
+                  </tr>
 
               ))}
 

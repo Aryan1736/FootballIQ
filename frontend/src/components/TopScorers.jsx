@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 function TopScorers({ scorers }) {
+
+    const navigate =  useNavigate();
 
     return (
 
@@ -19,7 +23,12 @@ function TopScorers({ scorers }) {
 
                         <div
                             key={scorer.playerId}
-                            className="flex items-center justify-between bg-zinc-800 rounded-2xl px-4 py-3 hover:bg-zinc-700 transition"
+                            onClick={() =>
+                                navigate(
+                                    `/player/${scorer.playerId}`
+                                )
+                            }
+                            className="flex items-center justify-between bg-zinc-800 rounded-2xl px-4 py-3 hover:bg-zinc-700 hover:text-green-400 transition cursor-pointer"
                         >
 
                             <div className="flex items-center gap-4">

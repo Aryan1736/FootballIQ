@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import StandingsPage from "./pages/StandingsPage";
 import MatchesPage from "./pages/MatchesPage";
 import TeamDetails from "./pages/TeamDetails";
+import PlayerPage from "./pages/PlayerPage";
 
 
 function App() {
@@ -32,6 +33,11 @@ function App() {
                 <Route 
                     path="/team/:id/:leagueCode" 
                     element={<TeamDetails />} 
+                />
+
+                <Route
+                    path="/player/:id"
+                    element={<PlayerPage />}
                 />
 
             </Routes>
