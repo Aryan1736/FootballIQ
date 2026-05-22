@@ -2,12 +2,14 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { searchEntities } from "../services/footballService";
 import { LEAGUES, getLeague } from "../lib/leagues";
+import { useAuth } from "../context/useAuth";
 
 function Navbar({ league, setLeague }) {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
     const navigate = useNavigate();
+    const { user, isAuthenticated, logout } = useAuth();
     const selectedLeague = getLeague(league);
 
     const navClass = ({ isActive }) =>
@@ -48,6 +50,11 @@ function Navbar({ league, setLeague }) {
 
         setResults([]);
         setQuery("");
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
     };
 
     return (
@@ -159,6 +166,30 @@ function Navbar({ league, setLeague }) {
                             ))}
                         </select>
                     </label>
+
+                    {isAuthenticated ? (
+                        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] p-1 pl-4">
+                            <span className="max-w-32 truncate text-sm font-semibold text-white">
+                                {user.username}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="rounded-full bg-white px-4 py-2 text-sm font-bold text-zinc-950 transition hover:bg-emerald-200"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex rounded-full border border-white/10 bg-white/[0.06] p-1">
+                            <NavLink to="/login" className={navClass}>
+                                Login
+                            </NavLink>
+                            <NavLink to="/register" className={navClass}>
+                                Register
+                            </NavLink>
+                        </div>
+                    )}
                 </div>
             </div>
         </nav>

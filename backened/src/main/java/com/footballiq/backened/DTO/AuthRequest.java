@@ -1,11 +1,9 @@
 package com.footballiq.backened.DTO;
 
-// Data Transfer Object - to send required data
-
 import lombok.Data;
 
 @Data
-public class LoginRequest {
+public class AuthRequest {
 
     private String email;
     private String password;

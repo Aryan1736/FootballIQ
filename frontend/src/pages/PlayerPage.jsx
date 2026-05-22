@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
+import FavoriteButton from "../components/FavoriteButton";
+import useFavorites from "../hooks/useFavorites";
 import { getPlayerDetails } from "../services/footballService";
 
 function PlayerPage() {
@@ -9,6 +11,10 @@ function PlayerPage() {
     const [player, setPlayer] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [favoriteSaving, setFavoriteSaving] = useState(false);
+    const { playerIds, togglePlayerFavorite } = useFavorites();
+    const playerId = Number(id);
+    const isFavorite = playerIds.has(playerId);
 
     useEffect(() => {
         let cancelled = false;
@@ -64,6 +70,18 @@ function PlayerPage() {
         );
     }
 
+    const handleFavoriteToggle = async () => {
+        setFavoriteSaving(true);
+        try {
+            await togglePlayerFavorite({
+                id: playerId,
+                name: player.name
+            });
+        } finally {
+            setFavoriteSaving(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#050608] text-white">
             <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -97,13 +115,22 @@ function PlayerPage() {
                             </p>
                         </div>
 
-                        {player.shirtNumber && (
-                            <div className="grid h-24 w-24 place-items-center rounded-3xl bg-emerald-300 text-zinc-950">
-                                <span className="text-4xl font-black">
-                                    {player.shirtNumber}
-                                </span>
-                            </div>
-                        )}
+                        <div className="flex flex-col gap-3 md:items-end">
+                            <FavoriteButton
+                                active={isFavorite}
+                                disabled={favoriteSaving}
+                                label="Save player"
+                                onClick={handleFavoriteToggle}
+                            />
+
+                            {player.shirtNumber && (
+                                <div className="grid h-24 w-24 place-items-center rounded-3xl bg-emerald-300 text-zinc-950">
+                                    <span className="text-4xl font-black">
+                                        {player.shirtNumber}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </section>
 

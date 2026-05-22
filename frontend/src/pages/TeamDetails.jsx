@@ -6,9 +6,11 @@ import {
     getTeamPreviousMatches
 } from "../services/footballService";
 import EmptyState from "../components/EmptyState";
+import FavoriteButton from "../components/FavoriteButton";
 import TeamAnalytics from "../components/TeamAnalytics";
 import TeamForm from "../components/TeamForm";
 import TeamSkeleton from "../components/TeamSkeleton";
+import useFavorites from "../hooks/useFavorites";
 
 const TeamDetails = () => {
     const { id, leagueCode } = useParams();
@@ -19,6 +21,10 @@ const TeamDetails = () => {
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [favoriteSaving, setFavoriteSaving] = useState(false);
+    const { teamIds, toggleTeamFavorite } = useFavorites();
+    const teamId = Number(id);
+    const isFavorite = teamIds.has(teamId);
 
     useEffect(() => {
         let cancelled = false;
@@ -78,6 +84,19 @@ const TeamDetails = () => {
         );
     }
 
+    const handleFavoriteToggle = async () => {
+        setFavoriteSaving(true);
+        try {
+            await toggleTeamFavorite({
+                id: teamId,
+                name: team.name,
+                logo: team.crest
+            });
+        } finally {
+            setFavoriteSaving(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#050608] text-white">
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -111,7 +130,15 @@ const TeamDetails = () => {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 lg:w-72">
+                        <div className="space-y-3 lg:w-72">
+                            <FavoriteButton
+                                active={isFavorite}
+                                disabled={favoriteSaving}
+                                label="Save team"
+                                onClick={handleFavoriteToggle}
+                            />
+
+                            <div className="grid grid-cols-2 gap-3">
                             <div className="rounded-2xl bg-zinc-950/50 p-4">
                                 <p className="text-xs text-zinc-500">Coach</p>
                                 <p className="mt-1 truncate font-bold text-white">
@@ -123,6 +150,7 @@ const TeamDetails = () => {
                                 <p className="mt-1 truncate font-bold text-white">
                                     {team.clubColors || "N/A"}
                                 </p>
+                            </div>
                             </div>
                         </div>
                     </div>

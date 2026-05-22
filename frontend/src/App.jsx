@@ -5,6 +5,8 @@ import StandingsPage from "./pages/StandingsPage";
 import MatchesPage from "./pages/MatchesPage";
 import TeamDetails from "./pages/TeamDetails";
 import PlayerPage from "./pages/PlayerPage";
+import AuthPage from "./pages/AuthPage";
+import AuthProvider from "./context/AuthProvider";
 
 
 function App() {
@@ -12,6 +14,7 @@ function App() {
     return (
 
         <BrowserRouter>
+            <AuthProvider>
 
             <Routes>
 
@@ -40,7 +43,18 @@ function App() {
                     element={<PlayerPage />}
                 />
 
+                <Route
+                    path="/login"
+                    element={<AuthPage mode="login" />}
+                />
+
+                <Route
+                    path="/register"
+                    element={<AuthPage mode="register" />}
+                />
+
             </Routes>
+            </AuthProvider>
 
         </BrowserRouter>
     );

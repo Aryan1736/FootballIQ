@@ -14,6 +14,9 @@ import StandingsTable from "../components/StandingsTable";
 import TopScorers from "../components/TopScorers";
 import DashboardSkeleton from "../components/DashboardSkeleton";
 import { getLeague } from "../lib/leagues";
+import { useAuth } from "../context/useAuth";
+import useFavorites from "../hooks/useFavorites";
+import MyFootballIQ from "../components/MyFootballIQ";
 
 function Dashboard() {
     const [league, setLeague] = useState(localStorage.getItem("league") || "PL");
@@ -23,6 +26,8 @@ function Dashboard() {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const { isAuthenticated } = useAuth();
+    const { teamFavorites, playerFavorites } = useFavorites();
     const selectedLeague = getLeague(league);
 
     useEffect(() => {
@@ -92,6 +97,14 @@ function Dashboard() {
             {!error && (
                 <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_0.9fr]">
                     <section className="space-y-6">
+                        {isAuthenticated && (
+                            <MyFootballIQ
+                                teamFavorites={teamFavorites}
+                                playerFavorites={playerFavorites}
+                                league={league}
+                            />
+                        )}
+
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
                                 <p className="text-xs uppercase tracking-[0.22em] text-zinc-500">
