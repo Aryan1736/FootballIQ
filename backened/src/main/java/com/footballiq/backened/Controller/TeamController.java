@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/football")
-@CrossOrigin(origins = "*")
 public class TeamController {
 
     @Autowired

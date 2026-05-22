@@ -8,7 +8,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/football")
-@CrossOrigin(origins = "*")
 public class SearchController {
 
     private final SearchService searchService;
