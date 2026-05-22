@@ -2,7 +2,7 @@ import axios from "axios";
 import { getStoredToken } from "./tokenStorage";
 
 const apiClient = axios.create({
-    baseURL: "http://localhost:8080"
+    baseURL: "https://footballiq-2mzi.onrender.com"
 });
 
 apiClient.interceptors.request.use((config) => {
