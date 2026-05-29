@@ -97,13 +97,12 @@ function Dashboard() {
             {!error && (
                 <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_0.9fr]">
                     <section className="space-y-6">
-                        {isAuthenticated && (
-                            <MyFootballIQ
-                                teamFavorites={teamFavorites}
-                                playerFavorites={playerFavorites}
-                                league={league}
-                            />
-                        )}
+                        <MyFootballIQ
+                            isAuthenticated={isAuthenticated}
+                            teamFavorites={teamFavorites}
+                            playerFavorites={playerFavorites}
+                            league={league}
+                        />
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
