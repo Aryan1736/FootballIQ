@@ -15,6 +15,12 @@ FootballIQ is a full-stack football analytics platform that provides live footba
 - Save favorite teams and players
 - Persistent user data using PostgreSQL
 
+### ⚡ Performance & Caching
+- Redis-powered caching for faster API responses
+- Reduced external football API calls
+- Improved backend performance and lower latency
+- Production-grade cache layer with Spring Cache (`@Cacheable`)
+
 ### ⚽ Football Analytics
 - Live league standings
 - Match fixtures and recent results
@@ -34,6 +40,7 @@ FootballIQ is a full-stack football analytics platform that provides live footba
 - Frontend deployed on **Vercel**
 - Backend deployed on **Render (Dockerized Spring Boot)**
 - Database hosted on **Neon PostgreSQL**
+- Redis cache hosted on **Redis Cloud**
 
 ---
 
@@ -51,11 +58,13 @@ FootballIQ is a full-stack football analytics platform that provides live footba
 - Spring Security
 - JWT Authentication
 - REST APIs
+- Spring Cache
 - Maven
 - Docker
 
-### Database
+### Database & Caching
 - PostgreSQL (Neon)
+- Redis Cloud
 
 ### Deployment
 - Vercel
@@ -70,51 +79,11 @@ Frontend (React + Vite)
 ↓  
 REST API (Spring Boot)  
 ↓  
-PostgreSQL (Neon DB)  
+Redis Cache Layer  
+↓  
+PostgreSQL (Neon DB) + Football Data API  
 ↓  
 Render + Vercel Deployment
-
----
-
-## ⚙️ Local Setup
-
-### Clone Repository
-
-```bash
-git clone https://github.com/Aryan1736/FootballIQ.git
-cd FootballIQ
-```
-
-### Backend Setup
-
-```bash
-cd backened
-```
-
-Create environment variables:
-
-```properties
-SPRING_DATASOURCE_URL=
-SPRING_DATASOURCE_USERNAME=
-SPRING_DATASOURCE_PASSWORD=
-FOOTBALL_API_KEY=
-JWT_SECRET=
-JWT_EXPIRATION_MS=
-```
-
-Run backend:
-
-```bash
-mvn spring-boot:run
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
 
 ---
 
@@ -128,11 +97,12 @@ FootballIQ is actively evolving. Planned improvements include:
 - Team form and performance analysis using ML
 - Smart recommendation system for teams and players
 
-### 📊 Advanced Analytics
-- Player vs Player comparison system
-- Team performance analytics dashboard
-- Tactical and statistical visualizations
-- Historical trend analysis
+### 🚀 Platform Enhancements
+- Real-time live match updates using WebSockets
+- Notification system for favorite teams
+- Advanced search and filtering
+- More leagues and competitions
+- Microservices and cloud scalability exploration
 
 ---
 
