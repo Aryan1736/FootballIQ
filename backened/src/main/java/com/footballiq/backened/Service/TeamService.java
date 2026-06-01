@@ -19,9 +19,14 @@ public class TeamService {
     private final String BASE_URL = "https://api.football-data.org/v4";
 
     private final SearchService searchService;
+    private final RedisCacheService redisCacheService;
 
-    public TeamService(SearchService searchService) {
+    public TeamService(
+            SearchService searchService,
+            RedisCacheService redisCacheService
+    ) {
         this.searchService = searchService;
+        this.redisCacheService = redisCacheService;
     }
 
 
@@ -84,6 +89,32 @@ public class TeamService {
             return teamCache.get(id);
         }
 
+        String redisKey =
+                "footballiq:team:"
+                        + id
+                        + ":details";
+
+        java.util.Optional<String> redisTeam =
+                redisCacheService.get(
+                        redisKey,
+                        String.class
+                );
+
+        if(redisTeam.isPresent()) {
+
+            teamCache.put(
+                    id,
+                    redisTeam.get()
+            );
+
+            teamCacheTime.put(
+                    id,
+                    System.currentTimeMillis()
+            );
+
+            return redisTeam.get();
+        }
+
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -142,10 +173,30 @@ public class TeamService {
                 System.currentTimeMillis()
         );
 
+        redisCacheService.set(
+                redisKey,
+                response.getBody()
+        );
+
         return response.getBody();
     }
 
     public String getTeamMatches(int id) {
+
+        String redisKey =
+                "footballiq:team:"
+                        + id
+                        + ":matches";
+
+        java.util.Optional<String> redisTeamMatches =
+                redisCacheService.get(
+                        redisKey,
+                        String.class
+                );
+
+        if(redisTeamMatches.isPresent()) {
+            return redisTeamMatches.get();
+        }
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -161,6 +212,11 @@ public class TeamService {
                 HttpMethod.GET,
                 entity,
                 String.class
+        );
+
+        redisCacheService.set(
+                redisKey,
+                response.getBody()
         );
 
         return response.getBody();

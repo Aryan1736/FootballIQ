@@ -1,5 +1,6 @@
 package com.footballiq.backened.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.footballiq.backened.DTO.MatchDTO;
 import com.footballiq.backened.DTO.StandingDTO;
 import com.footballiq.backened.DTO.TeamMatchDTO;
@@ -31,10 +32,15 @@ public class FootballService {
             new HashMap<>();
 
     private final SearchService searchService;
+    private final RedisCacheService redisCacheService;
 
 
-    public FootballService(SearchService searchService) {
+    public FootballService(
+            SearchService searchService,
+            RedisCacheService redisCacheService
+    ) {
         this.searchService = searchService;
+        this.redisCacheService = redisCacheService;
     }
 
     public List<StandingDTO> getStandings(String leagueCode){
@@ -45,6 +51,31 @@ public class FootballService {
                         - standingsCacheTime.get(leagueCode) < 300000) {
 
             return standingsCache.get(leagueCode);
+        }
+
+        String redisKey =
+                "footballiq:standings:"
+                        + leagueCode;
+
+        Optional<List<StandingDTO>> redisStandings =
+                redisCacheService.get(
+                        redisKey,
+                        new TypeReference<List<StandingDTO>>() {}
+                );
+
+        if(redisStandings.isPresent()) {
+
+            standingsCache.put(
+                    leagueCode,
+                    redisStandings.get()
+            );
+
+            standingsCacheTime.put(
+                    leagueCode,
+                    System.currentTimeMillis()
+            );
+
+            return redisStandings.get();
         }
 
         try {
@@ -162,6 +193,11 @@ public class FootballService {
                     System.currentTimeMillis()
             );
 
+            redisCacheService.set(
+                    redisKey,
+                    standingsList
+            );
+
             return standingsList;
 
         } catch (Exception e) {
@@ -188,6 +224,31 @@ public class FootballService {
                         - matchesCacheTime.get(leagueCode) < 300000) {
 
             return matchesCache.get(leagueCode);
+        }
+
+        String redisKey =
+                "footballiq:matches:"
+                        + leagueCode;
+
+        Optional<List<MatchDTO>> redisMatches =
+                redisCacheService.get(
+                        redisKey,
+                        new TypeReference<List<MatchDTO>>() {}
+                );
+
+        if(redisMatches.isPresent()) {
+
+            matchesCache.put(
+                    leagueCode,
+                    redisMatches.get()
+            );
+
+            matchesCacheTime.put(
+                    leagueCode,
+                    System.currentTimeMillis()
+            );
+
+            return redisMatches.get();
         }
 
         try {
@@ -328,6 +389,11 @@ public class FootballService {
                     System.currentTimeMillis()
             );
 
+            redisCacheService.set(
+                    redisKey,
+                    matchList
+            );
+
             return matchList;
 
         } catch (Exception e) {
@@ -339,6 +405,21 @@ public class FootballService {
     }
 
     public List<TeamMatchDTO> getTeamPreviousMatches(int teamId) {
+
+        String redisKey =
+                "footballiq:team:"
+                        + teamId
+                        + ":previous-matches";
+
+        Optional<List<TeamMatchDTO>> redisTeamMatches =
+                redisCacheService.get(
+                        redisKey,
+                        new TypeReference<List<TeamMatchDTO>>() {}
+                );
+
+        if(redisTeamMatches.isPresent()) {
+            return redisTeamMatches.get();
+        }
 
         String url =
                 "https://api.football-data.org/v4/teams/"
@@ -434,6 +515,11 @@ public class FootballService {
             e.printStackTrace();
         }
 
+        redisCacheService.set(
+                redisKey,
+                matchesList
+        );
+
         return matchesList;
     }
 
@@ -463,6 +549,31 @@ public class FootballService {
 
             return finishedMatchesCache
                     .get(leagueCode);
+        }
+
+        String redisKey =
+                "footballiq:results:"
+                        + leagueCode;
+
+        Optional<List<MatchDTO>> redisResults =
+                redisCacheService.get(
+                        redisKey,
+                        new TypeReference<List<MatchDTO>>() {}
+                );
+
+        if(redisResults.isPresent()) {
+
+            finishedMatchesCache.put(
+                    leagueCode,
+                    redisResults.get()
+            );
+
+            finishedMatchesCacheTime.put(
+                    leagueCode,
+                    System.currentTimeMillis()
+            );
+
+            return redisResults.get();
         }
 
         String url =
@@ -617,6 +728,11 @@ public class FootballService {
                 System.currentTimeMillis()
         );
 
+        redisCacheService.set(
+                redisKey,
+                matchList
+        );
+
         return matchList;
     }
 
@@ -650,6 +766,47 @@ public class FootballService {
                     scorersCache.get(
                             leagueCode
                     );
+
+            for(TopScorerDTO scorer
+                    : cachedScorers) {
+
+                searchService
+                        .registerPlayer(
+
+                                scorer.getPlayerId(),
+
+                                scorer.getPlayerName()
+                        );
+            }
+
+            return cachedScorers;
+        }
+
+        String redisKey =
+                "footballiq:scorers:"
+                        + leagueCode;
+
+        Optional<List<TopScorerDTO>> redisScorers =
+                redisCacheService.get(
+                        redisKey,
+                        new TypeReference<List<TopScorerDTO>>() {}
+                );
+
+        if(redisScorers.isPresent()) {
+
+            List<TopScorerDTO>
+                    cachedScorers =
+                    redisScorers.get();
+
+            scorersCache.put(
+                    leagueCode,
+                    cachedScorers
+            );
+
+            scorersCacheTime.put(
+                    leagueCode,
+                    System.currentTimeMillis()
+            );
 
             for(TopScorerDTO scorer
                     : cachedScorers) {
@@ -766,6 +923,11 @@ public class FootballService {
         scorersCacheTime.put(
                 leagueCode,
                 System.currentTimeMillis()
+        );
+
+        redisCacheService.set(
+                redisKey,
+                scorers
         );
 
         return scorers;

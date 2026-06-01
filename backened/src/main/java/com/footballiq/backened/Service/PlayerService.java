@@ -33,6 +33,12 @@ public class PlayerService {
             playerCacheTime =
             new HashMap<>();
 
+    private final RedisCacheService redisCacheService;
+
+    public PlayerService(RedisCacheService redisCacheService) {
+        this.redisCacheService = redisCacheService;
+    }
+
     public PlayerDTO getPlayerDetails(int playerId) {
 
         if(playerCache.containsKey(playerId)
@@ -45,6 +51,31 @@ public class PlayerService {
                         < 300000) {
 
             return playerCache.get(playerId);
+        }
+
+        String redisKey =
+                "footballiq:player:"
+                        + playerId;
+
+        java.util.Optional<PlayerDTO> redisPlayer =
+                redisCacheService.get(
+                        redisKey,
+                        PlayerDTO.class
+                );
+
+        if(redisPlayer.isPresent()) {
+
+            playerCache.put(
+                    playerId,
+                    redisPlayer.get()
+            );
+
+            playerCacheTime.put(
+                    playerId,
+                    System.currentTimeMillis()
+            );
+
+            return redisPlayer.get();
         }
 
         String url =
@@ -189,6 +220,11 @@ public class PlayerService {
             playerCacheTime.put(
                     playerId,
                     System.currentTimeMillis()
+            );
+
+            redisCacheService.set(
+                    redisKey,
+                    player
             );
 
             return player;
